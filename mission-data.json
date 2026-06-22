@@ -48,6 +48,13 @@
       "lat": 52.821173,
       "lng": 6.544594,
       "source": "photo/8_coords_keien.jpg"
+    },
+    {
+      "id": "mission_6_kanaal",
+      "label": "Kanaal / eindpunt GPS-verplaatsing",
+      "lat": 52.820194,
+      "lng": 6.538139,
+      "source": "opgegeven als 52°49'12.7\"N 6°32'17.3\"E"
     }
   ],
   "derivedRoutes": [
@@ -65,6 +72,11 @@
     "mission2HeightMeters": 7,
     "mission3Branches": 54,
     "purplePostsFromBenchToStones": 5,
+    "gpsCanalTarget": {
+      "lat": 52.820194,
+      "lng": 6.538139,
+      "toleranceMeters": 50
+    },
     "benchSynonyms": [
       "bank",
       "bankje",
@@ -109,8 +121,9 @@
       "tunnelWrong": "RECHTSOMKEERT CURSIST! Je hebt last van tunnelvisie en kijkt niet goed om je heen! Ga maar weer helemaal terug over het pad om ze opnieuw te tellen!",
       "gpsWrong": "GPS-COORDINATEN ONJUIST. BLIJF DOORLOPEN TOT DE EERSTE ECHTE HINDERNIS EN CONTROLEER JE TELEFOON!",
       "placeWrong": "NEGATIEF CURSIST! Beschrijving van de plek onvoldoende scherp. Kijk opnieuw en geef in 1 woord aan wat deze plek is.",
-      "plaqueWrong": "COMMANDO FAAL! Rapportage onnauwkeurig. Een marinier werkt met 100% precisie. Kijk opnieuw en typ de tekst EXACT over!",
-      "fenceHintPenalty": "Zwak, cursist! +2 strafminuten toegevoegd omdat je het patroon langs het wandelpad niet zelf spotte."
+      "plaqueWrong": "COMMANDO FAAL! Rapportage onnauwkeurig. Een marinier mist geen letters. Kijk opnieuw en zorg dat de lettervolgorde klopt!",
+      "fenceHintPenalty": "Zwak, cursist! +2 strafminuten toegevoegd omdat je het patroon langs het wandelpad niet zelf spotte.",
+      "purplePostNudge": "Je gaat toch niet helemaal terug lopen? Dat kost je zo een kwartier. Gok desnoods een paar keer: dat kost maar 2 strafminuten per poging. Een marinier is slim met zijn inspanning; domme kracht is alleen nuttig als je brein ook aan staat."
     }
   }
 }

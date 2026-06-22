@@ -505,9 +505,9 @@
 
     const PURPLE_POST_TARGET = 5;
     const GPS_TARGET = {
-      lat: 52.818072,
-      lng: 6.549939,
-      tolerance: 0.00015
+      lat: 52.820194,
+      lng: 6.538139,
+      toleranceMeters: 50
     };
     const TRAINER_COORDS = {
       start: "52.815835, 6.548451",
@@ -516,7 +516,8 @@
       mission3: "52.816668, 6.545142",
       crossing: "52.817024, 6.545692",
       fence: "52.818072, 6.549939",
-      stones: "52.821173, 6.544594"
+      stones: "52.821173, 6.544594",
+      canal: "52.820194, 6.538139"
     };
     const CROSSING_TO_FENCE = {
       distanceMeters: 308,
@@ -559,7 +560,7 @@
         tag: "MISSIE 3",
         title: "DE GEVAARLIJKE HANGER",
         coords: "52.816668, 6.545142",
-        image: "",
+        image: "photo/4_uitdaging_gevallen_boom.jpg",
         imageAlt: "Omgevallen boom die de doorgang blokkeert.",
         briefing: "Vanaf de dode reus volgt de eindspurt naar de gevaarlijke hanger. Richting: EXACT 281 graden (vrijwel pal West). Afstand: EXACT 107 meter. Pas op: hier ligt een gevaarlijke, omgevallen boom die de doorgang blokkeert.",
         task: "Voordat de hangende boom verwerkt kan worden, moeten de stevige zijtakken eraf. Tel exact hoeveel zijtakken minimaal 5 cm dik zijn en dus eerst afgezaagd moeten worden. Dunnere takken kun je afbreken.",
@@ -579,7 +580,9 @@
       timerId: null,
       flashId: null,
       autoAdvanceId: null,
+      nudgeId: null,
       tunnelStep: "stones",
+      tunnelNudge: false,
       finaleStep: "choices",
       fenceStep: "march",
       plaqueStep: "describe",
@@ -629,6 +632,13 @@
       if (state.autoAdvanceId) {
         window.clearTimeout(state.autoAdvanceId);
         state.autoAdvanceId = null;
+      }
+    }
+
+    function clearNudge() {
+      if (state.nudgeId) {
+        window.clearTimeout(state.nudgeId);
+        state.nudgeId = null;
       }
     }
 
@@ -774,8 +784,9 @@
         3: `<p class="hint-suggestion">Suggestie: gebruik een referentietak van 5 cm dik om te bepalen welke zijtakken meetellen. Alles van minimaal die dikte moet eerst afgezaagd worden; alles dunner kun je afbreken.</p>`
       };
       const hintSuggestion = hintSuggestions[state.mission] || "";
+      const hintImage = state.mission === 3 ? "" : (mission.image ? imageMarkup(mission.image, mission.imageAlt) : "");
       const hintMarkup = state.hints[state.mission] ? `
-        ${mission.image ? imageMarkup(mission.image, mission.imageAlt) : ""}
+        ${hintImage}
         ${hintSuggestion}
       ` : "";
 
@@ -876,6 +887,11 @@
 
     function renderTunnel() {
       const isQuestion = state.tunnelStep === "question";
+      const tunnelNudgeMarkup = state.tunnelNudge ? `
+        <div class="step-panel">
+          <p>${missionData.copy.messages.purplePostNudge}</p>
+        </div>
+      ` : "";
       const content = isQuestion ? `
         <p class="kicker">CONTROLEFOUT</p>
         <h1 id="tunnel-title">Houd Halt!</h1>
@@ -885,6 +901,7 @@
           ${integerInputMarkup("purple-posts", "Aantal paarse routepaaltjes", String(PURPLE_POST_TARGET), "aantal")}
           <button class="btn" type="submit">RAPPORTEER AANTAL</button>
         </form>
+        ${tunnelNudgeMarkup}
       ` : `
         <p class="kicker">FASE 7</p>
         <h1 id="tunnel-title">Tunnelvisie Breken</h1>
@@ -904,6 +921,13 @@
         </section>
       `;
       bindIntegerInputs();
+      if (isQuestion && !state.tunnelNudge && !state.nudgeId) {
+        state.nudgeId = window.setTimeout(() => {
+          state.tunnelNudge = true;
+          state.nudgeId = null;
+          render();
+        }, 30000);
+      }
     }
 
     function renderGps() {
@@ -913,14 +937,14 @@
             <p class="kicker">FASE 8</p>
             <h1 id="gps-title">De GPS-Verplaatsing</h1>
             ${trainerCoordsMarkup("KEIEN / START GPS-VERPLAATSING", TRAINER_COORDS.stones)}
-            ${trainerCoordsMarkup("HINDERNIS / HEK", TRAINER_COORDS.fence)}
+            ${trainerCoordsMarkup("KANAAL / GPS-DOEL", `${TRAINER_COORDS.canal} (marge ${GPS_TARGET.toleranceMeters} meter)`)}
             <p>Eigenlijk werkt het makkelijker als je GPS hebt, want dan hoef je helemaal geen afstanden te meten of voetstappen te tellen. Jouw huidige positie is bij de stenen.</p>
             <div class="task-block">
               <h2>Opdracht</h2>
               <p>De volgende opdracht is simpel: volg vanaf hier het pad en loop zo ver mogelijk door zonder ergens af te slaan. Houd halt op de plek waar je de allereerste hindernis tegenkomt waarbij je onmogelijk nog recht door kunt lopen. Voer op die plek de exacte GPS-co&ouml;rdinaten van je telefoon in om het eindrapport te ontgrendelen.</p>
             </div>
             <form class="answer-form" data-action="gps-answer">
-              ${textInputMarkup("gps-input", "GPS-co&ouml;rdinaten", "52.818072, 6.549939", "latitude, longitude")}
+              ${textInputMarkup("gps-input", "GPS-co&ouml;rdinaten", TRAINER_COORDS.canal, "latitude, longitude")}
               <button class="btn" type="submit">VERSTUUR GPS-RAPPORT</button>
             </form>
           </div>
@@ -954,7 +978,6 @@
             <h1 id="finale-title">De Blinde Mars</h1>
             ${trainerCoordsMarkup("HEK", TRAINER_COORDS.fence)}
             ${trainerCoordsMarkup("KRUISING NAAR HEK", `${CROSSING_TO_FENCE.distanceMeters} meter, ${CROSSING_TO_FENCE.bearingDegrees} graden`)}
-            ${imageMarkup("photo/4_uitdaging_gevallen_boom.jpg", "Gevallen boom bij de start van missie 4.", "success-image")}
             <p>STATION STANDBY. Je staat op de kruising. Tijd voor de ultieme blinde beproeving richting het hek.</p>
             <div class="task-block">
               <h2>Buddy-instructie</h2>
@@ -984,7 +1007,7 @@
           <p>Houd halt bij het wandelpaaltje. Hoofdkwartier vraagt nu om je verslag. Wat stond er exact op het gele plaatje bij de plek die je zojuist nauwkeurig moest onderzoeken?</p>
           <div class="task-block">
             <h2>Taak</h2>
-            <p>Typ de tekst die op het gele plaatje stond EXACT over in het onderstaande veld.</p>
+            <p>Typ de tekst die op het gele plaatje stond over. Spaties, hoofdletters en leestekens zijn niet belangrijk; de lettervolgorde wel.</p>
           </div>
           <form class="answer-form" data-action="plaque-answer">
             ${textInputMarkup("plaque-input", "Tekst op het gele plaatje", PLAQUE_TEXT, "exacte tekst")}
@@ -1053,7 +1076,7 @@
           <div class="screen-frame">
             <p class="kicker">MISSIE 5</p>
             <h1 id="false-title">DE OVERSTEEK</h1>
-            ${trainerCoordsMarkup("KANAAL", "eindpunt na GPS-verplaatsing")}
+            ${trainerCoordsMarkup("KANAAL", TRAINER_COORDS.canal)}
             <p>Zwem onmiddellijk naar de overkant van het water en begin je baantjes te tellen!</p>
             ${imageMarkup("photo/10_uitdaging_kanaal.jpg", "Water bij de valse oversteek.", "success-image")}
           </div>
@@ -1085,6 +1108,9 @@
     function render() {
       clearAutoAdvance();
       setCelebrationMode(state.view === "complete");
+      if (!(state.view === "tunnel" && state.tunnelStep === "question")) {
+        clearNudge();
+      }
 
       if (state.view === "prebriefing") {
         renderPrebriefing();
@@ -1145,6 +1171,7 @@
       hideFlash();
       state.elapsed = 0;
       state.tunnelStep = "stones";
+      state.tunnelNudge = false;
       state.finaleStep = "choices";
       state.fenceStep = "march";
       state.plaqueStep = "describe";
@@ -1265,6 +1292,7 @@
       }
 
       hideFlash();
+      clearNudge();
       state.view = "gps";
       render();
       focusApp();
@@ -1285,6 +1313,19 @@
       return { lat: parts[0], lng: parts[1] };
     }
 
+    function distanceMeters(a, b) {
+      const radius = 6371000;
+      const toRad = value => value * Math.PI / 180;
+      const lat1 = toRad(a.lat);
+      const lat2 = toRad(b.lat);
+      const deltaLat = toRad(b.lat - a.lat);
+      const deltaLng = toRad(b.lng - a.lng);
+      const haversine = Math.sin(deltaLat / 2) ** 2
+        + Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLng / 2) ** 2;
+
+      return 2 * radius * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+    }
+
     function normalizeAnswer(value) {
       return value
         .trim()
@@ -1292,6 +1333,14 @@
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/\s+/g, " ");
+    }
+
+    function normalizeLetterSequence(value) {
+      return value
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]/g, "");
     }
 
     function submitPlaceAnswer() {
@@ -1316,9 +1365,7 @@
     function submitGpsAnswer() {
       const input = document.getElementById("gps-input");
       const coords = input ? parseGps(input.value) : null;
-      const valid = coords
-        && Math.abs(coords.lat - GPS_TARGET.lat) <= GPS_TARGET.tolerance
-        && Math.abs(coords.lng - GPS_TARGET.lng) <= GPS_TARGET.tolerance;
+      const valid = coords && distanceMeters(coords, GPS_TARGET) <= GPS_TARGET.toleranceMeters;
 
       if (!valid) {
         punishWrongAnswer(missionData.copy.messages.gpsWrong);
@@ -1348,9 +1395,10 @@
 
     function submitPlaqueAnswer() {
       const input = document.getElementById("plaque-input");
-      const value = input ? input.value.trim() : "";
+      const value = input ? normalizeLetterSequence(input.value) : "";
+      const expected = normalizeLetterSequence(PLAQUE_TEXT);
 
-      if (value !== PLAQUE_TEXT) {
+      if (value !== expected) {
         punishWrongAnswer(missionData.copy.messages.plaqueWrong);
         if (input) {
           input.focus();
@@ -1430,6 +1478,8 @@
 
       if (action === "stones-photo") {
         state.tunnelStep = "question";
+        state.tunnelNudge = false;
+        clearNudge();
         render();
         focusApp();
       }
