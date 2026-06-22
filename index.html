@@ -1,0 +1,1195 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2b3a2a">
+  <title>Kamp Vossenberg: Commando Navigatiemissie</title>
+  <style>
+    :root {
+      --bg: #2b3a2a;
+      --bg-deep: #12180f;
+      --panel: rgba(9, 14, 8, 0.68);
+      --panel-strong: rgba(4, 7, 4, 0.88);
+      --line: #00ff00;
+      --line-soft: rgba(0, 255, 0, 0.32);
+      --orange: #ff6600;
+      --orange-soft: rgba(255, 102, 0, 0.24);
+      --text: #f2f5ea;
+      --muted: #b9c8ae;
+      --danger: #ff2b2b;
+      --danger-bg: #5f0000;
+      --shadow: rgba(0, 0, 0, 0.42);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--bg);
+    }
+
+    body {
+      min-height: 100svh;
+      margin: 0;
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.14), rgba(0, 0, 0, 0.44)),
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 12px),
+        var(--bg);
+      color: var(--text);
+      font-family: "Arial Narrow", "Roboto Condensed", "Segoe UI", Arial, sans-serif;
+      letter-spacing: 0;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: calc(env(safe-area-inset-top) + 10px) 12px 10px;
+      background: linear-gradient(180deg, #11190f 0%, #182515 100%);
+      border-bottom: 2px solid var(--orange);
+      box-shadow: 0 8px 20px var(--shadow);
+    }
+
+    .banner {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      background: #050905;
+      color: var(--orange);
+      text-align: center;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      font-weight: 900;
+      line-height: 1.2;
+      overflow-wrap: break-word;
+    }
+
+    .timer {
+      max-width: 760px;
+      margin: 8px auto 0;
+      padding: 8px 10px;
+      border-left: 4px solid var(--line);
+      background: rgba(0, 0, 0, 0.46);
+      color: var(--line);
+      font-family: "Courier New", monospace;
+      font-size: 1.08rem;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .flash {
+      position: fixed;
+      top: calc(env(safe-area-inset-top) + 92px);
+      left: 10px;
+      right: 10px;
+      z-index: 40;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 12px 14px;
+      border: 2px solid var(--danger);
+      background: var(--danger-bg);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+      text-align: center;
+      text-transform: uppercase;
+      font-size: 0.98rem;
+      font-weight: 900;
+      line-height: 1.28;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(-12px);
+      transition: opacity 160ms ease, transform 160ms ease;
+    }
+
+    .flash.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+      animation: alarmPulse 640ms ease-in-out 2;
+    }
+
+    @keyframes alarmPulse {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.7); }
+    }
+
+    .app-shell {
+      width: auto;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 18px 14px calc(42px + env(safe-area-inset-bottom));
+    }
+
+    .screen {
+      min-height: calc(100svh - 150px);
+      padding: 18px 0 0;
+    }
+
+    .screen-frame {
+      width: auto;
+      padding: 18px 14px;
+      border-top: 2px solid var(--line);
+      border-bottom: 2px solid var(--orange);
+      background: var(--panel);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+      overflow-wrap: break-word;
+    }
+
+    .kicker,
+    .coords,
+    .field-label {
+      margin: 0;
+      color: var(--line);
+      font-family: "Courier New", monospace;
+      font-size: 0.82rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 8px 0 14px;
+      color: #fff;
+      font-size: 1.8rem;
+      line-height: 1.04;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      color: var(--orange);
+      font-size: 1.1rem;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    p {
+      margin: 0 0 14px;
+      color: var(--text);
+      font-size: 1.02rem;
+      line-height: 1.52;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .coords {
+      display: inline-flex;
+      width: 100%;
+      min-height: 34px;
+      align-items: center;
+      margin: 0 0 16px;
+      padding: 7px 9px;
+      border: 1px solid var(--line-soft);
+      background: rgba(0, 0, 0, 0.32);
+      color: var(--line);
+    }
+
+    .briefing-copy {
+      margin-bottom: 20px;
+    }
+
+    .task-block,
+    .intel-block,
+    .calibration-log,
+    .final-block {
+      margin: 18px 0;
+      padding: 14px;
+      border: 1px solid var(--line-soft);
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .task-block p,
+    .intel-block p,
+    .final-block p {
+      margin-bottom: 0;
+    }
+
+    .button-stack {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      display: inline-flex;
+      width: 100%;
+      min-height: 54px;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 14px;
+      border: 2px solid var(--orange);
+      border-radius: 6px;
+      background: var(--orange);
+      color: #080a07;
+      font-size: 0.96rem;
+      font-weight: 900;
+      line-height: 1.15;
+      text-align: center;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.55);
+    }
+
+    .btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 3px 0 rgba(0, 0, 0, 0.55);
+    }
+
+    .btn:focus-visible,
+    input:focus-visible {
+      outline: 3px solid #fff;
+      outline-offset: 3px;
+    }
+
+    .btn.secondary {
+      border-color: var(--line);
+      background: #061006;
+      color: var(--line);
+    }
+
+    .btn.danger {
+      border-color: var(--danger);
+      background: #180000;
+      color: #fff;
+    }
+
+    .answer-form {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .input-row {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field-label {
+      color: var(--orange);
+    }
+
+    input {
+      width: 100%;
+      min-height: 56px;
+      border: 2px solid var(--line);
+      border-radius: 4px;
+      background: #050805;
+      color: var(--line);
+      font-family: "Courier New", monospace;
+      font-size: 1.45rem;
+      font-weight: 900;
+      line-height: 1;
+      text-align: center;
+      caret-color: var(--orange);
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    input::placeholder {
+      color: rgba(0, 255, 0, 0.42);
+    }
+
+    .intel-image {
+      overflow: hidden;
+      margin: 16px 0 0;
+      border: 2px solid var(--orange);
+      border-radius: 6px;
+      background: #050805;
+    }
+
+    .intel-image img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 58svh;
+      object-fit: contain;
+      background: #050805;
+    }
+
+    .success-image {
+      margin-top: 16px;
+    }
+
+    .hint-suggestion {
+      margin: 12px 0 0;
+      padding: 10px 12px;
+      border-left: 4px solid var(--orange);
+      background: rgba(255, 102, 0, 0.12);
+      color: var(--text);
+      font-size: 0.96rem;
+      line-height: 1.42;
+    }
+
+    .status-stamp {
+      display: inline-flex;
+      min-height: 32px;
+      align-items: center;
+      margin: 4px 0 14px;
+      padding: 6px 10px;
+      border: 1px solid var(--orange);
+      background: var(--orange-soft);
+      color: var(--orange);
+      font-family: "Courier New", monospace;
+      font-size: 0.84rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .final-time {
+      display: block;
+      margin-top: 10px;
+      color: var(--line);
+      font-family: "Courier New", monospace;
+      font-size: 2rem;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .choice-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .calibration-log {
+      display: grid;
+      gap: 12px;
+    }
+
+    .auto-advance {
+      margin-top: 16px;
+      padding: 12px;
+      border: 1px dashed var(--orange);
+      color: var(--orange);
+      font-family: "Courier New", monospace;
+      font-size: 0.88rem;
+      font-weight: 900;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .image-missing {
+      display: none;
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px dashed var(--orange);
+      color: var(--orange);
+      font-family: "Courier New", monospace;
+      font-size: 0.82rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .step-panel {
+      margin-top: 18px;
+      padding: 14px;
+      border: 1px solid var(--orange);
+      background: rgba(255, 102, 0, 0.1);
+    }
+
+    body.celebration {
+      --bg: #fff8e6;
+      --panel: rgba(255, 255, 255, 0.9);
+      --line: #c99a22;
+      --line-soft: rgba(201, 154, 34, 0.38);
+      --orange: #b8860b;
+      --orange-soft: rgba(201, 154, 34, 0.18);
+      --text: #2c2412;
+      --muted: #6f5a20;
+      background:
+        radial-gradient(circle at 15% 18%, rgba(255, 214, 80, 0.5) 0 3px, transparent 4px),
+        radial-gradient(circle at 80% 14%, rgba(255, 102, 164, 0.45) 0 3px, transparent 4px),
+        radial-gradient(circle at 34% 70%, rgba(0, 180, 160, 0.38) 0 3px, transparent 4px),
+        linear-gradient(180deg, #fffef7, #fff4cc);
+      color: var(--text);
+    }
+
+    body.celebration .app-header {
+      background: #fff;
+      border-bottom-color: #d4af37;
+    }
+
+    body.celebration .banner,
+    body.celebration .timer {
+      border-color: #d4af37;
+      background: #fffaf0;
+      color: #9b6b00;
+    }
+
+    body.celebration .screen-frame {
+      border: 2px solid #d4af37;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 14px 34px rgba(155, 107, 0, 0.18);
+    }
+
+    body.celebration h1 {
+      color: #9b6b00;
+    }
+
+    body.celebration p {
+      color: #2c2412;
+    }
+
+    .confetti-line {
+      min-height: 34px;
+      margin: 0 0 12px;
+      color: #c99a22;
+      font-size: 1.35rem;
+      font-weight: 900;
+      text-align: center;
+      letter-spacing: 0.14rem;
+    }
+
+    @media (min-width: 720px) {
+      .app-header {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      .app-shell {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      .screen-frame {
+        padding: 24px;
+      }
+
+      .banner {
+        font-size: 0.9rem;
+      }
+
+      h1 {
+        font-size: 2.15rem;
+      }
+
+      .choice-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="banner">KAMP VOSSENBERG: COMMANDO NAVIGATIEMISSIE</div>
+    <div class="timer" id="timer">TACTICAL TIME: 00:00</div>
+  </header>
+
+  <div class="flash" id="flash" role="alert" aria-live="assertive"></div>
+
+  <main class="app-shell" id="app" tabindex="-1"></main>
+
+  <script>
+    const app = document.getElementById("app");
+    const timerDisplay = document.getElementById("timer");
+    const flashBanner = document.getElementById("flash");
+
+    const PURPLE_POST_TARGET = 3;
+    const GPS_TARGET = {
+      lat: 52.816668,
+      lng: 6.543542,
+      tolerance: 0.00015
+    };
+
+    const rebukes = [
+      "NEGATIEF CURSIST, BEREKENING ONJUIST. BLESSEER JEZELF NIET EN DENK NA!",
+      "HAD BETER GEKUND, CURSIST! TEMPO!",
+      "FOUTE PEILING, CURSIST. HERBEREKEN EN HERPAK JEZELF!",
+      "DIT IS GEEN WANDELCLUB. CONTROLEER JE METING!"
+    ];
+
+    const missions = {
+      1: {
+        tag: "MISSIE 1",
+        title: "DE DIKKE BOOM",
+        coords: "52.816178, 6.547542",
+        image: "photo/1_uitdaging_dikke_boom.jpg",
+        imageAlt: "Monumentale dikke boom op Landgoed de Vossenberg.",
+        briefing: "Vanaf het startpunt navigeer je 72 meter in een kompashoek van 302&deg;. Navigeer naar co&ouml;rdinaten 52.816178, 6.547542. Je treft hier een levende, monumentale woudreus aan. De gemeente Midden-Drenthe handhaaft een kapverbod voor bomen met een diameter van 40 cm of meer op een hoogte van 1,30 meter.",
+        task: "Meet de omtrek van de stam op exact 1,30 meter hoogte met je meetlint. De omtrek is 265 cm. Bereken vanuit deze omtrek de dikte (diameter) van de boom in hele centimeters.",
+        label: "Diameter in hele centimeters",
+        placeholder: "84",
+        success: "Gefeliciteerd! Deze reus heeft een dikte van ruim 84 cm en is absoluut beschermd!",
+        nextLabel: "PROCEED TO INTEL PACKET 2",
+        validate: value => value >= 80 && value <= 89
+      },
+      2: {
+        tag: "MISSIE 2",
+        title: "DE DODE REUS",
+        coords: "52.816415, 6.546675",
+        image: "photo/2_uitdaging_dode_boom.jpg",
+        imageAlt: "Kale dode boomstam in het terrein.",
+        briefing: "Vanaf de dikke boom volgt een tactische verplaatsing. Richting: EXACT 293 graden (West-Noordwest). Afstand: EXACT 63 meter. Gebruik je pacing (stappen tellen). Je stuit op een ge&iuml;soleerde, kale, dode boomstam.",
+        task: "Bepaal de hoogte van deze boom met de boswachtersmethode (de arm-stok-truc). Hoe hoog is deze dode boom in hele meters?",
+        label: "Hoogte in hele meters",
+        placeholder: "7",
+        success: "Correct! Hier halen we exact 21 ongespleten kachelblokken van 33 cm uit voor de haard!",
+        nextLabel: "PROCEED TO INTEL PACKET 3",
+        validate: value => value === 7
+      },
+      3: {
+        tag: "MISSIE 3",
+        title: "DE GEVAARLIJKE HANGER",
+        coords: "52.816668, 6.545142",
+        image: "photo/3_uitdaging_gevallen_boom.jpg",
+        imageAlt: "Omgevallen boom die de doorgang blokkeert.",
+        briefing: "Vanaf de dode reus volgt de eindspurt naar de gevaarlijke hanger. Richting: EXACT 281 graden (vrijwel pal West). Afstand: EXACT 107 meter. Pas op: hier ligt een gevaarlijke, omgevallen boom die de doorgang blokkeert.",
+        task: "Voordat de stam verwerkt kan worden, moeten de dikke takken eraf. Neem een referentietak van 5 cm dik uit je toolbox. Tel exact hoeveel zijtakken die dikker zijn dan 5 cm eerst afgezaagd moeten worden.",
+        label: "Aantal dikke zijtakken",
+        placeholder: "54",
+        success: "Klaar! 54 takken geteld. De weg is vrijgemaakt.",
+        validate: value => value === 54
+      }
+    };
+
+    const state = {
+      view: "prebriefing",
+      mission: 1,
+      completedMission: null,
+      elapsed: 0,
+      running: false,
+      timerId: null,
+      flashId: null,
+      autoAdvanceId: null,
+      tunnelStep: "stones",
+      finaleStep: "choices",
+      hints: {
+        1: false,
+        2: false,
+        3: false
+      },
+      finalTime: "00:00"
+    };
+
+    function formatTime(totalSeconds) {
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    function updateTimer() {
+      timerDisplay.textContent = `TACTICAL TIME: ${formatTime(state.elapsed)}`;
+    }
+
+    function ensureTimer() {
+      if (state.timerId) {
+        return;
+      }
+
+      state.timerId = window.setInterval(() => {
+        if (!state.running) {
+          return;
+        }
+
+        state.elapsed += 1;
+        updateTimer();
+      }, 1000);
+    }
+
+    function setRunning(shouldRun) {
+      state.running = shouldRun;
+      ensureTimer();
+      updateTimer();
+    }
+
+    function clearAutoAdvance() {
+      if (state.autoAdvanceId) {
+        window.clearTimeout(state.autoAdvanceId);
+        state.autoAdvanceId = null;
+      }
+    }
+
+    function showFlash(message) {
+      window.clearTimeout(state.flashId);
+      flashBanner.innerHTML = message;
+      flashBanner.classList.remove("is-visible");
+      void flashBanner.offsetWidth;
+      flashBanner.classList.add("is-visible");
+      state.flashId = window.setTimeout(() => {
+        flashBanner.classList.remove("is-visible");
+      }, 3600);
+    }
+
+    function hideFlash() {
+      window.clearTimeout(state.flashId);
+      flashBanner.classList.remove("is-visible");
+      flashBanner.innerHTML = "";
+    }
+
+    function randomRebuke() {
+      return rebukes[Math.floor(Math.random() * rebukes.length)];
+    }
+
+    function addPenalty(seconds, message) {
+      state.elapsed += seconds;
+      updateTimer();
+      showFlash(message);
+    }
+
+    function integerInputMarkup(id, label, placeholder) {
+      return `
+        <div class="input-row">
+          <label class="field-label" for="${id}">${label}</label>
+          <input
+            id="${id}"
+            data-integer-input
+            inputmode="numeric"
+            pattern="[0-9]*"
+            autocomplete="off"
+            placeholder="${placeholder}"
+            aria-label="${label}"
+          >
+        </div>
+      `;
+    }
+
+    function textInputMarkup(id, label, placeholder) {
+      return `
+        <div class="input-row">
+          <label class="field-label" for="${id}">${label}</label>
+          <input
+            id="${id}"
+            type="text"
+            autocomplete="off"
+            placeholder="${placeholder}"
+            aria-label="${label}"
+          >
+        </div>
+      `;
+    }
+
+    function imageMarkup(src, alt, extraClass = "") {
+      return `
+        <figure class="intel-image ${extraClass}">
+          <img src="${src}" alt="${alt}" onerror="this.closest('figure').nextElementSibling.style.display='block'">
+        </figure>
+        <p class="image-missing">Asset ontbreekt nog: ${src}</p>
+      `;
+    }
+
+    function setCelebrationMode(enabled) {
+      document.body.classList.toggle("celebration", enabled);
+    }
+
+    function renderPrebriefing() {
+      app.innerHTML = `
+        <section class="screen" aria-labelledby="prebriefing-title">
+          <div class="screen-frame">
+            <p class="kicker">FASE 0: OMGEVINGSGEHEUGEN</p>
+            <h1 id="prebriefing-title">De Pre-Briefing</h1>
+            <p class="briefing-copy">Als goede commando moet je in staat zijn dingen te onthouden van je omgeving. Een scherpe blik is het verschil tussen slagen en falen. Kijk goed naar de foto. Herken deze plek meteen. Ga zo snel mogelijk naar deze locatie toe op het landgoed. Pas als je er staat, druk je op de startknop.</p>
+            ${imageMarkup("photo/0_uitdaging_oesterzwammen.jpg", "Boomstronk met het oesterzwammenbriefje op het startpunt.", "success-image")}
+            <div class="button-stack">
+              <button class="btn" type="button" data-action="start">IK STA OP HET STARTPUNT (START DE OPLEIDING)</button>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderBriefing() {
+      app.innerHTML = `
+        <section class="screen" aria-labelledby="briefing-title">
+          <div class="screen-frame">
+            <p class="kicker">THE BRIEFING</p>
+            <h1 id="briefing-title">Landgoed de Vossenberg</h1>
+            <p class="briefing-copy">Cursist, welkom op Landgoed de Vossenberg. Jouw navigatieskills en stappenberekening worden vandaag getest onder zware commando-omstandigheden. Geen GPS-kaarten. Verplaats je naar de startlocatie.</p>
+            <div class="button-stack">
+              <button class="btn" type="button" data-action="start">START MISSIE 1</button>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderMission() {
+      const mission = missions[state.mission];
+      const hintSuggestion = state.mission === 1
+        ? `<p class="hint-suggestion">Suggestie: kompas, richtinggevoel en meters vreten. Zorg dat je een kompas en een meetlint in je Tactical Toolbox hebt zitten.</p>`
+        : "";
+      const hintMarkup = state.hints[state.mission] ? `
+        ${imageMarkup(mission.image, mission.imageAlt)}
+        ${hintSuggestion}
+      ` : "";
+
+      app.innerHTML = `
+        <section class="screen" aria-labelledby="mission-title">
+          <div class="screen-frame">
+            <p class="kicker">${mission.tag}</p>
+            <h1 id="mission-title">${mission.title}</h1>
+            <div class="coords">COORDS: ${mission.coords}</div>
+            <p>${mission.briefing}</p>
+
+            <div class="task-block">
+              <h2>Opdracht</h2>
+              <p>${mission.task}</p>
+            </div>
+
+            <div class="intel-block">
+              <button class="btn secondary" type="button" data-action="hint">OPVRAGEN INTEL (HINT)</button>
+              ${hintMarkup}
+            </div>
+
+            <form class="answer-form" data-action="answer">
+              ${integerInputMarkup("answer-input", mission.label, mission.placeholder)}
+              <button class="btn" type="submit">BEVESTIG ANTWOORD</button>
+            </form>
+          </div>
+        </section>
+      `;
+      bindIntegerInputs();
+    }
+
+    function renderSuccess() {
+      const mission = missions[state.completedMission];
+      const isMissionThree = state.completedMission === 3;
+      const buttonMarkup = isMissionThree ? `
+        <div class="auto-advance">TUNNELVISIE-CONTROLE WORDT GELADEN...</div>
+      ` : `
+        <div class="button-stack">
+          <button class="btn" type="button" data-action="proceed">${mission.nextLabel}</button>
+        </div>
+      `;
+
+      app.innerHTML = `
+        <section class="screen" aria-labelledby="success-title">
+          <div class="screen-frame">
+            <p class="status-stamp">Intel bevestigd</p>
+            <h1 id="success-title">Missie ${state.completedMission} voltooid</h1>
+            <p>${mission.success}</p>
+            ${imageMarkup(mission.image, mission.imageAlt, "success-image")}
+            ${buttonMarkup}
+          </div>
+        </section>
+      `;
+
+      if (isMissionThree) {
+        clearAutoAdvance();
+        state.autoAdvanceId = window.setTimeout(() => {
+          state.view = "tunnel";
+          state.completedMission = null;
+          render();
+          focusApp();
+        }, 4300);
+      }
+    }
+
+    function renderTunnel() {
+      const isQuestion = state.tunnelStep === "question";
+      const content = isQuestion ? `
+        <p class="kicker">CONTROLEFOUT</p>
+        <h1 id="tunnel-title">Houd Halt!</h1>
+        <p>Je hebt gefocust op de grond om de stenen te vinden, maar heb je om je heen gekeken? Hoeveel paarse routepaaltjes ben je zojuist gepasseerd tussen de hanger en deze stenen?</p>
+        <form class="answer-form" data-action="tunnel-answer">
+          ${integerInputMarkup("purple-posts", "Aantal paarse routepaaltjes", "0")}
+          <button class="btn" type="submit">RAPPORTEER AANTAL</button>
+        </form>
+      ` : `
+        <p class="kicker">MISSIE 3.5</p>
+        <h1 id="tunnel-title">Tunnelvisie Breken</h1>
+        <p>Loop door over het normale wandelpad. Let extreem goed op. Volg het pad tot je de stenen van de foto op je scherm ziet liggen. Maak als commando een identieke foto van deze stenen ter rapportage voor het intel-pakket.</p>
+        ${imageMarkup("photo/5_uitdaging_keien.jpg", "Stenen op het pad voor het intel-pakket.", "success-image")}
+        <div class="button-stack">
+          <button class="btn" type="button" data-action="stones-photo">IK STA BIJ DE STENEN EN HEB DE FOTO GEMAAKT</button>
+        </div>
+      `;
+
+      app.innerHTML = `
+        <section class="screen" aria-labelledby="tunnel-title">
+          <div class="screen-frame">
+            ${content}
+          </div>
+        </section>
+      `;
+      bindIntegerInputs();
+    }
+
+    function renderGps() {
+      app.innerHTML = `
+        <section class="screen" aria-labelledby="gps-title">
+          <div class="screen-frame">
+            <p class="kicker">MISSIE 3.6</p>
+            <h1 id="gps-title">De GPS-Verplaatsing</h1>
+            <p>Eigenlijk werkt het makkelijker als je GPS hebt, want dan hoef je helemaal geen afstanden te meten of voetstappen te tellen. Jouw huidige GPS-co&ouml;rdinaten bij de stenen zijn: 52.821173, 6.544594.</p>
+            <div class="task-block">
+              <h2>Opdracht</h2>
+              <p>De volgende opdracht is simpel: volg vanaf hier het pad en loop zo ver mogelijk door zonder ergens af te slaan. Houd halt op de plek waar je de allereerste hindernis tegenkomt waarbij je onmogelijk nog recht door kunt lopen. Voer op die plek de exacte GPS-co&ouml;rdinaten van je telefoon in om de finale te ontgrendelen.</p>
+            </div>
+            <form class="answer-form" data-action="gps-answer">
+              ${textInputMarkup("gps-input", "GPS-co&ouml;rdinaten", "52.816668, 6.543542")}
+              <button class="btn" type="submit">ONTGRENDEL DE BLINDE MARS</button>
+            </form>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderFinale() {
+      const stepPanel = state.finaleStep === "extra" ? `
+        <div class="step-panel">
+          <p>Eigenlijk zou je nu helemaal terug moeten naar de kruising van de instructeurs, maar vooruit: houd je blinddoek om en je ogen dicht. Hoeveel stappen doe je er nog extra vooruit?</p>
+          <form class="answer-form" data-action="finale-step-log">
+            ${integerInputMarkup("extra-steps", "Extra stappen vooruit", "3")}
+            <button class="btn" type="submit">STAPPEN TOEGEVOEGD</button>
+          </form>
+        </div>
+      ` : state.finaleStep === "back" ? `
+        <div class="step-panel">
+          <p>Te ver, cursist! Je bent het doel voorbijgeschoten. Ogen dicht.</p>
+          <form class="answer-form" data-action="finale-step-log">
+            ${integerInputMarkup("back-steps", "Stappen aftrekken", "2")}
+            <button class="btn" type="submit">STAPPEN GECORRIGEERD</button>
+          </form>
+        </div>
+      ` : "";
+
+      app.innerHTML = `
+        <section class="screen" aria-labelledby="finale-title">
+          <div class="screen-frame">
+            <p class="kicker">MISSIE 4</p>
+            <h1 id="finale-title">De Blinde Mars</h1>
+            <p>STATION STANDBY. Tijd voor de ultieme blinde beproeving richting het hek bij co&ouml;rdinaten 52.816668, 6.543542.</p>
+            <div class="task-block">
+              <h2>Buddy-instructie</h2>
+              <p>Blinddoek om. Je kameraden (buddies) lopen vanaf nu links en rechts van je. Voel hun aanwezigheid; zolang je niet bij hen wegbeweegt, kan jou niets overkomen. Merk je dat zij wat afbuigen, dan leiden zij jou blijkbaar om een hindernis heen. Jij hoeft alleen maar aan je stappen te denken en vooruit te lopen. Wij zorgen dat je niet struikelt. Loop geblinddoekt exact 22 meter over het dwarspad. Ben je er volgens jouw stappentelling? Zeg hardop: 'Hier is het!' en reik je hand uit naar links.</p>
+            </div>
+            <div class="choice-grid">
+              <button class="btn secondary" type="button" data-action="feel-nothing">Ik voel niks...</button>
+              <button class="btn danger" type="button" data-action="too-far">Ik ben te ver / sta in de bosjes</button>
+              <button class="btn" type="button" data-action="feel-fence">Ik voel het hek!</button>
+            </div>
+            ${stepPanel}
+          </div>
+        </section>
+      `;
+      bindIntegerInputs();
+    }
+
+    function renderFalseMission() {
+      app.innerHTML = `
+        <section class="screen" aria-labelledby="false-title">
+          <div class="screen-frame">
+            <p class="kicker">MISSIE 5</p>
+            <h1 id="false-title">DE OVERSTEEK</h1>
+            <p>Zwem onmiddellijk naar de overkant van het water en begin je baantjes te tellen!</p>
+            ${imageMarkup("photo/7_uitdaging_kanaal.jpg", "Water bij de valse oversteek.", "success-image")}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderComplete() {
+      setCelebrationMode(true);
+      app.innerHTML = `
+        <section class="screen" aria-labelledby="complete-title">
+          <div class="screen-frame">
+            <div class="confetti-line">* * * * * * *</div>
+            <p class="status-stamp">Verjaardagsrapport</p>
+            <h1 id="complete-title">Kelin, Van Harte Gefeliciteerd!</h1>
+            <div class="final-block">
+              <p>Wacht eens even... We zijn toch niet gek?! Waarom zou je jezelf dit in vredesnaam aandoen op je verjaardag? Vinden we dat nou wel erg leuk en wat hebben we er eigenlijk aan?</p>
+              <p>Nee hoor! Hiermee hopen we dat je inziet: marinier zijn... Ach, waarom zouden we onszelf dat aandoen, terwijl we lekker thuis aan een gebakje kunnen zitten en verjaardag kunnen vieren? Kijken hoe anderen zo gek zijn om marinier te willen worden in Kamp van Koningsbrugge is een veel betere strategie in het leven!</p>
+              <p><strong>KELIN, VAN HARTE GEFELICITEERD MET JE VERJAARDAG!</strong></p>
+              <p>Ik hoop dat je dit cadeautje vermakelijk vond. Je mag nu heel comfortabel, zonder omwegen, op een heerlijk pad, zonder te tellen, zonder na te denken en zonder kompas... gewoon je eigen vertrouwde weg terugkiezen naar de taart!</p>
+              <p>Tactical Commando Eindtijd:</p>
+              <span class="final-time">${state.finalTime}</span>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function render() {
+      clearAutoAdvance();
+      setCelebrationMode(state.view === "complete");
+
+      if (state.view === "prebriefing") {
+        renderPrebriefing();
+        return;
+      }
+
+      if (state.view === "mission") {
+        renderMission();
+        return;
+      }
+
+      if (state.view === "success") {
+        renderSuccess();
+        return;
+      }
+
+      if (state.view === "tunnel") {
+        renderTunnel();
+        return;
+      }
+
+      if (state.view === "gps") {
+        renderGps();
+        return;
+      }
+
+      if (state.view === "finale") {
+        renderFinale();
+        return;
+      }
+
+      if (state.view === "falseMission") {
+        renderFalseMission();
+        return;
+      }
+
+      renderComplete();
+    }
+
+    function focusApp() {
+      window.setTimeout(() => {
+        app.focus({ preventScroll: true });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, 30);
+    }
+
+    function startMissionOne() {
+      hideFlash();
+      state.elapsed = 0;
+      state.tunnelStep = "stones";
+      state.finaleStep = "choices";
+      state.hints = { 1: false, 2: false, 3: false };
+      state.mission = 1;
+      state.view = "mission";
+      setRunning(true);
+      render();
+      focusApp();
+    }
+
+    function completeMission(missionId) {
+      hideFlash();
+      state.completedMission = missionId;
+      state.view = "success";
+
+      render();
+      focusApp();
+    }
+
+    function proceedFromSuccess() {
+      hideFlash();
+      if (state.completedMission === 1) {
+        setRunning(true);
+        state.mission = 2;
+      } else {
+        state.mission = 3;
+      }
+
+      state.completedMission = null;
+      state.view = "mission";
+      render();
+      focusApp();
+    }
+
+    function submitAnswer() {
+      const input = document.getElementById("answer-input");
+      const rawValue = input ? input.value.trim() : "";
+      const value = rawValue === "" ? NaN : Number(rawValue);
+      const mission = missions[state.mission];
+
+      if (!Number.isInteger(value) || !mission.validate(value)) {
+        showFlash(randomRebuke());
+        if (input) {
+          input.focus();
+        }
+        return;
+      }
+
+      completeMission(state.mission);
+    }
+
+    function requestHint() {
+      state.hints[state.mission] = true;
+      addPenalty(120, "Zwak, cursist! +2 strafminuten toegevoegd wegens gebrek aan commando-inzicht.");
+      render();
+    }
+
+    function unlockFinale() {
+      hideFlash();
+      state.view = "finale";
+      render();
+      focusApp();
+    }
+
+    function submitTunnelAnswer() {
+      const input = document.getElementById("purple-posts");
+      const value = input && input.value.trim() !== "" ? Number(input.value.trim()) : NaN;
+
+      if (!Number.isInteger(value) || value !== PURPLE_POST_TARGET) {
+        showFlash("RECHTSOMKEERT CURSIST! Je hebt last van tunnelvisie en kijkt niet goed om je heen! Ga maar weer helemaal terug over het pad om ze opnieuw te tellen!");
+        if (input) {
+          input.focus();
+        }
+        return;
+      }
+
+      hideFlash();
+      state.view = "gps";
+      render();
+      focusApp();
+    }
+
+    function parseGps(value) {
+      const parts = value
+        .trim()
+        .replace(/;/g, ",")
+        .split(/[,\s]+/)
+        .filter(Boolean)
+        .map(Number);
+
+      if (parts.length < 2 || parts.some(part => Number.isNaN(part))) {
+        return null;
+      }
+
+      return { lat: parts[0], lng: parts[1] };
+    }
+
+    function submitGpsAnswer() {
+      const input = document.getElementById("gps-input");
+      const coords = input ? parseGps(input.value) : null;
+      const valid = coords
+        && Math.abs(coords.lat - GPS_TARGET.lat) <= GPS_TARGET.tolerance
+        && Math.abs(coords.lng - GPS_TARGET.lng) <= GPS_TARGET.tolerance;
+
+      if (!valid) {
+        showFlash("GPS-COORDINATEN ONJUIST. BLIJF DOORLOPEN TOT DE EERSTE ECHTE HINDERNIS EN CONTROLEER JE TELEFOON!");
+        if (input) {
+          input.focus();
+        }
+        return;
+      }
+
+      unlockFinale();
+    }
+
+    function logFinaleSteps() {
+      hideFlash();
+      state.finaleStep = "choices";
+      render();
+      focusApp();
+    }
+
+    function feelFence() {
+      hideFlash();
+      setRunning(false);
+      state.finalTime = formatTime(state.elapsed);
+      state.view = "falseMission";
+      render();
+      focusApp();
+      state.autoAdvanceId = window.setTimeout(() => {
+        state.view = "complete";
+        render();
+        focusApp();
+      }, 3000);
+    }
+
+    function bindIntegerInputs() {
+      document.querySelectorAll("[data-integer-input]").forEach(input => {
+        input.addEventListener("keydown", event => {
+          if (["e", "E", "+", "-", ".", ","].includes(event.key)) {
+            event.preventDefault();
+          }
+        });
+
+        input.addEventListener("input", () => {
+          input.value = input.value.replace(/[^\d]/g, "");
+        });
+      });
+    }
+
+    app.addEventListener("click", event => {
+      const button = event.target.closest("[data-action]");
+      if (!button) {
+        return;
+      }
+
+      const action = button.getAttribute("data-action");
+
+      if (action === "start") {
+        startMissionOne();
+      }
+
+      if (action === "hint") {
+        requestHint();
+      }
+
+      if (action === "proceed") {
+        proceedFromSuccess();
+      }
+
+      if (action === "unlock-finale") {
+        unlockFinale();
+      }
+
+      if (action === "stones-photo") {
+        state.tunnelStep = "question";
+        render();
+        focusApp();
+      }
+
+      if (action === "feel-nothing") {
+        state.finaleStep = "extra";
+        render();
+        focusApp();
+      }
+
+      if (action === "too-far") {
+        state.finaleStep = "back";
+        render();
+        focusApp();
+      }
+
+      if (action === "feel-fence") {
+        feelFence();
+      }
+    });
+
+    app.addEventListener("submit", event => {
+      event.preventDefault();
+      const form = event.target.closest("[data-action='answer']");
+      if (form) {
+        submitAnswer();
+      }
+
+      const tunnelForm = event.target.closest("[data-action='tunnel-answer']");
+      if (tunnelForm) {
+        submitTunnelAnswer();
+      }
+
+      const gpsForm = event.target.closest("[data-action='gps-answer']");
+      if (gpsForm) {
+        submitGpsAnswer();
+      }
+
+      const finaleStepForm = event.target.closest("[data-action='finale-step-log']");
+      if (finaleStepForm) {
+        logFinaleSteps();
+      }
+    });
+
+    updateTimer();
+    render();
+  </script>
+</body>
+</html>
