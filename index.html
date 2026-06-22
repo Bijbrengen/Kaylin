@@ -519,16 +519,16 @@
       1: {
         tag: "MISSIE 1",
         title: "DE DIKKE BOOM",
-        coords: "52.816178, 6.547542",
+        coords: "",
         image: "photo/1_uitdaging_dikke_boom.jpg",
         imageAlt: "Monumentale dikke boom op Landgoed de Vossenberg.",
-        briefing: "Vanaf het startpunt navigeer je 72 meter in een kompashoek van 302&deg;. Navigeer naar co&ouml;rdinaten 52.816178, 6.547542. Je treft hier een levende, monumentale woudreus aan. De gemeente Midden-Drenthe handhaaft een kapverbod voor bomen met een diameter van 40 cm of meer op een hoogte van 1,30 meter.",
-        task: "Meet de omtrek van de stam op exact 1,30 meter hoogte met je meetlint. De omtrek is 265 cm. Bereken vanuit deze omtrek de dikte (diameter) van de boom in hele centimeters.",
-        label: "Diameter in hele centimeters",
-        placeholder: "84",
+        briefing: "Vanaf het startpunt navigeer je 72 meter in een kompashoek van 302&deg;. Je treft hier een levende, monumentale woudreus aan. De gemeente Midden-Drenthe handhaaft een kapverbod voor bomen met een diameter van 40 cm of meer op een hoogte van 1,30 meter.",
+        task: "Meet de omtrek van de stam op exact 1,30 meter hoogte met je meetlint. Voer daarna de gemeten omtrek in hele centimeters in.",
+        label: "Gemeten omtrek in hele centimeters",
+        placeholder: "omtrek",
         success: "Gefeliciteerd! Deze reus heeft een dikte van ruim 84 cm en is absoluut beschermd!",
         nextLabel: "PROCEED TO INTEL PACKET 2",
-        validate: value => value >= 80 && value <= 89
+        validate: value => value >= 260 && value <= 270
       },
       2: {
         tag: "MISSIE 2",
@@ -570,6 +570,8 @@
       autoAdvanceId: null,
       tunnelStep: "stones",
       finaleStep: "choices",
+      missionOneStep: "circumference",
+      missionOneCircumference: null,
       hints: {
         1: false,
         2: false,
@@ -721,6 +723,13 @@
 
     function renderMission() {
       const mission = missions[state.mission];
+      const isMissionOneDiameter = state.mission === 1 && state.missionOneStep === "diameter";
+      const taskText = isMissionOneDiameter
+        ? `Omtrek geregistreerd: ${state.missionOneCircumference} cm. Bereken vanuit deze omtrek de dikte (diameter) van de boom in hele centimeters.`
+        : mission.task;
+      const fieldLabel = isMissionOneDiameter ? "Diameter in hele centimeters" : mission.label;
+      const fieldPlaceholder = isMissionOneDiameter ? "84" : mission.placeholder;
+      const submitLabel = isMissionOneDiameter ? "BEVESTIG DIAMETER" : "BEVESTIG ANTWOORD";
       const hintSuggestion = state.mission === 1
         ? `<p class="hint-suggestion">Suggestie: kompas, richtinggevoel en meters vreten. Zorg dat je een kompas en een meetlint in je Tactical Toolbox hebt zitten.</p>`
         : "";
@@ -734,12 +743,12 @@
           <div class="screen-frame">
             <p class="kicker">${mission.tag}</p>
             <h1 id="mission-title">${mission.title}</h1>
-            <div class="coords">COORDS: ${mission.coords}</div>
+            ${mission.coords ? `<div class="coords">COORDS: ${mission.coords}</div>` : ""}
             <p>${mission.briefing}</p>
 
             <div class="task-block">
               <h2>Opdracht</h2>
-              <p>${mission.task}</p>
+              <p>${taskText}</p>
             </div>
 
             <div class="intel-block">
@@ -748,8 +757,8 @@
             </div>
 
             <form class="answer-form" data-action="answer">
-              ${integerInputMarkup("answer-input", mission.label, mission.placeholder)}
-              <button class="btn" type="submit">BEVESTIG ANTWOORD</button>
+              ${integerInputMarkup("answer-input", fieldLabel, fieldPlaceholder)}
+              <button class="btn" type="submit">${submitLabel}</button>
             </form>
           </div>
         </section>
@@ -970,6 +979,8 @@
       state.elapsed = 0;
       state.tunnelStep = "stones";
       state.finaleStep = "choices";
+      state.missionOneStep = "circumference";
+      state.missionOneCircumference = null;
       state.hints = { 1: false, 2: false, 3: false };
       state.mission = 1;
       state.view = "mission";
@@ -1007,6 +1018,36 @@
       const rawValue = input ? input.value.trim() : "";
       const value = rawValue === "" ? NaN : Number(rawValue);
       const mission = missions[state.mission];
+
+      if (state.mission === 1 && state.missionOneStep === "circumference") {
+        if (!Number.isInteger(value) || !mission.validate(value)) {
+          showFlash(randomRebuke());
+          if (input) {
+            input.focus();
+          }
+          return;
+        }
+
+        hideFlash();
+        state.missionOneCircumference = value;
+        state.missionOneStep = "diameter";
+        render();
+        focusApp();
+        return;
+      }
+
+      if (state.mission === 1 && state.missionOneStep === "diameter") {
+        if (!Number.isInteger(value) || value < 80 || value > 89) {
+          showFlash(randomRebuke());
+          if (input) {
+            input.focus();
+          }
+          return;
+        }
+
+        completeMission(state.mission);
+        return;
+      }
 
       if (!Number.isInteger(value) || !mission.validate(value)) {
         showFlash(randomRebuke());
