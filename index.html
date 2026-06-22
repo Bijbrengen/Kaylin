@@ -501,6 +501,7 @@
     const timerDisplay = document.getElementById("timer");
     const flashBanner = document.getElementById("flash");
     const isTrainerMode = new URLSearchParams(window.location.search).get("role") === "trainer";
+    let missionData = null;
 
     const PURPLE_POST_TARGET = 5;
     const GPS_TARGET = {
@@ -523,21 +524,6 @@
     };
     const PLAQUE_TEXT = "17 juni 2017 Aat en Frances 40 jaar getrouwd aangeboden door familie en vrienden";
 
-    const rebukes = [
-      "NEGATIEF CURSIST, BEREKENING ONJUIST. BLESSEER JEZELF NIET EN DENK NA!",
-      "HAD BETER GEKUND, CURSIST! TEMPO!",
-      "FOUTE PEILING, CURSIST. HERBEREKEN EN HERPAK JEZELF!",
-      "JE KOMPAS HUILT ZACHTJES IN DE MODDER, CURSIST!",
-      "ALS DIT PACING IS, DAN IS EEN SLINGERPAD EEN SNELWEG!",
-      "DE BOOM STAAT STIL EN TOCH RAAK JE HEM KWIJT. KNAP WERK, CURSIST!",
-      "JE REKENWERK MARSJEERT DE VERKEERDE KANT OP!",
-      "DE INSTRUCTEUR KRIJGT HIER GRIJZE HAREN VAN. EN DIE HAD HIJ AL!",
-      "DIT ANTWOORD IS ZO SCHEEF ALS EEN NATTE TAK IN TEGENWIND!",
-      "FOCUS, CURSIST. DE NATUUR GEEFT GEEN HERKANSING, IK WEL.",
-      "JE ZIT ERNAAST. NIET EEN BEETJE ERNAAST. CAMPINGTAFEL-ERNAAST.",
-      "ALS GPS VERBODEN IS, MOET JE HOOFD WEL AAN STAAN!",
-      "DE VOSSENBERG NOTEERT: CURSIST HEEFT NOG WAT ONTWIKKELPUNTEN."
-    ];
     let rebukeQueue = [];
 
     const missions = {
@@ -596,6 +582,8 @@
       tunnelStep: "stones",
       finaleStep: "choices",
       fenceStep: "march",
+      plaqueStep: "observe",
+      fenceHint: false,
       missionOneStep: "circumference",
       missionOneCircumference: null,
       hints: {
@@ -663,7 +651,7 @@
 
     function randomRebuke() {
       if (rebukeQueue.length === 0) {
-        rebukeQueue = [...rebukes].sort(() => Math.random() - 0.5);
+        rebukeQueue = [...missionData.copy.rebukes].sort(() => Math.random() - 0.5);
       }
 
       return rebukeQueue.pop();
@@ -676,14 +664,18 @@
     }
 
     function punishWrongAnswer(message = randomRebuke()) {
-      addPenalty(120, `${message} +2 STRAFMINUTEN.`);
+      addPenalty(120, `${message} ${missionData.copy.messages.wrongAnswerSuffix}`);
     }
 
     function trainerPlaceholder(value, fallback = "voer antwoord in") {
       return isTrainerMode ? value : fallback;
     }
 
-    function integerInputMarkup(id, label, placeholder, fallback = "voer getal in") {
+    function trainerValueAttr(value) {
+      return isTrainerMode && value !== null && value !== undefined ? ` value="${String(value).replace(/"/g, "&quot;")}"` : "";
+    }
+
+    function integerInputMarkup(id, label, placeholder, fallback = "voer getal in", trainerValue = placeholder) {
       return `
         <div class="input-row">
           <label class="field-label" for="${id}">${label}</label>
@@ -694,13 +686,14 @@
             pattern="[0-9]*"
             autocomplete="off"
             placeholder="${trainerPlaceholder(placeholder, fallback)}"
+            ${trainerValueAttr(trainerValue)}
             aria-label="${label}"
           >
         </div>
       `;
     }
 
-    function textInputMarkup(id, label, placeholder, fallback = "voer waarde in") {
+    function textInputMarkup(id, label, placeholder, fallback = "voer waarde in", trainerValue = placeholder) {
       return `
         <div class="input-row">
           <label class="field-label" for="${id}">${label}</label>
@@ -709,6 +702,7 @@
             type="text"
             autocomplete="off"
             placeholder="${trainerPlaceholder(placeholder, fallback)}"
+            ${trainerValueAttr(trainerValue)}
             aria-label="${label}"
           >
         </div>
@@ -868,8 +862,8 @@
               <p>Schat hoeveel stappen het is tot de kruising. Loop naar de kruising en tel je eigen stappen. Gebruik dit om jouw persoonlijke paslengte scherp te krijgen.</p>
             </div>
             <div class="calibration-log">
-              ${integerInputMarkup("bearing-log", "Geschatte hoek naar de kruising", "trainer", "graden")}
-              ${integerInputMarkup("steps-log", "Getelde stappen tot de kruising", "trainer", "stappen")}
+              ${integerInputMarkup("bearing-log", "Geschatte hoek naar de kruising", "trainer", "graden", null)}
+              ${integerInputMarkup("steps-log", "Getelde stappen tot de kruising", "trainer", "stappen", null)}
             </div>
             <div class="button-stack">
               <button class="btn" type="button" data-action="start-blind-march">IK STA OP DE KRUISING - START BLINDE MARS</button>
@@ -892,7 +886,7 @@
           <button class="btn" type="submit">RAPPORTEER AANTAL</button>
         </form>
       ` : `
-        <p class="kicker">MISSIE 3.5</p>
+        <p class="kicker">FASE 7</p>
         <h1 id="tunnel-title">Tunnelvisie Breken</h1>
         ${trainerCoordsMarkup("KEIEN", TRAINER_COORDS.stones)}
         <p>Loop door over het normale wandelpad. Let extreem goed op. Volg het pad tot je de stenen van de foto op je scherm ziet liggen. Maak als commando een identieke foto van deze stenen ter rapportage voor het intel-pakket.</p>
@@ -916,7 +910,7 @@
       app.innerHTML = `
         <section class="screen" aria-labelledby="gps-title">
           <div class="screen-frame">
-            <p class="kicker">MISSIE 3.6</p>
+            <p class="kicker">FASE 8</p>
             <h1 id="gps-title">De GPS-Verplaatsing</h1>
             ${trainerCoordsMarkup("KEIEN / START GPS-VERPLAATSING", TRAINER_COORDS.stones)}
             ${trainerCoordsMarkup("HINDERNIS / HEK", TRAINER_COORDS.fence)}
@@ -937,9 +931,9 @@
     function renderFinale() {
       const stepPanel = state.finaleStep === "extra" ? `
         <div class="step-panel">
-          <p>Eigenlijk zou je nu helemaal terug moeten naar de kruising van de instructeurs, maar vooruit: houd je blinddoek om en je ogen dicht. Hoeveel stappen doe je er nog extra vooruit?</p>
+          <p>Eigenlijk zou je nu helemaal terug moeten naar de kruising van de instructeurs, maar vooruit: blinddoek weer om, ogen dicht en corrigeer gecontroleerd vooruit. Hoeveel stappen corrigeer je?</p>
           <form class="answer-form" data-action="finale-step-log">
-            ${integerInputMarkup("extra-steps", "Extra stappen vooruit", "3", "stappen")}
+            ${integerInputMarkup("extra-steps", "Correctiestappen vooruit", "3", "stappen")}
             <button class="btn" type="submit">STAPPEN TOEGEVOEGD</button>
           </form>
         </div>
@@ -947,7 +941,7 @@
         <div class="step-panel">
           <p>Te ver, cursist! Je bent het doel voorbijgeschoten. Ogen dicht.</p>
           <form class="answer-form" data-action="finale-step-log">
-            ${integerInputMarkup("back-steps", "Stappen aftrekken", "2", "stappen")}
+            ${integerInputMarkup("back-steps", "Correctiestappen terug", "2", "stappen")}
             <button class="btn" type="submit">STAPPEN GECORRIGEERD</button>
           </form>
         </div>
@@ -978,39 +972,60 @@
     }
 
     function renderFenceMarch() {
-      const content = state.fenceStep === "report" ? `
-        <p class="kicker">PRECISIE-RAPPORTAGE</p>
-        <h1 id="fence-title">Het Bankje</h1>
-        ${trainerCoordsMarkup("BANKJE / PLAATJE", "na 12 palen vanaf het hek")}
-        <p>Houd halt bij het bankje. Op de leuning bevindt zich een ovaal, messing plaatje. Kijk er extreem goed naar. Een commando moet feilloos en secuur verslag kunnen uitbrengen aan het hoofdkwartier.</p>
-        <div class="task-block">
-          <h2>Taak</h2>
-          <p>Typ de tekst die op het plaatje staat EXACT over in het onderstaande veld.</p>
+      const fenceHintMarkup = state.fenceHint ? `
+        <div class="hint-suggestion">
+          Suggestie: kijk scherper naar het wandelpad. De palen langs het pad staan in een vast patroon van ongeveer 6 meter. Als je doorhebt dat dit ongeveer 6 grote stappen tussen twee palen is, kun je de afstand automatisch afleiden uit het patroon zonder opnieuw te gaan stappen tellen.
         </div>
-        <form class="answer-form" data-action="plaque-answer">
-          ${textInputMarkup("plaque-input", "Tekst op het messing plaatje", PLAQUE_TEXT, "exacte tekst")}
-          <button class="btn" type="submit">CONTROLEER RAPPORTAGE</button>
-        </form>
-      ` : state.fenceStep === "ready" ? `
-        <p class="kicker">RAPPORTAGE GOEDGEKEURD</p>
+      ` : "";
+      const reportContent = state.plaqueStep === "question" ? `
+          <p class="kicker">FASE 6</p>
+          <h1 id="fence-title">Rapportage Onder Druk</h1>
+          <p>Houd halt bij het wandelpaaltje. Hoofdkwartier vraagt nu om je verslag. Wat stond er exact op het gele plaatje bij de plek die je zojuist nauwkeurig moest onderzoeken?</p>
+          <div class="task-block">
+            <h2>Taak</h2>
+            <p>Typ de tekst die op het gele plaatje stond EXACT over in het onderstaande veld.</p>
+          </div>
+          <form class="answer-form" data-action="plaque-answer">
+            ${textInputMarkup("plaque-input", "Tekst op het gele plaatje", PLAQUE_TEXT, "exacte tekst")}
+            <button class="btn" type="submit">CONTROLEER RAPPORTAGE</button>
+          </form>
+        ` : `
+          <p class="kicker">FASE 6</p>
+          <h1 id="fence-title">Onderzoek Je Plek</h1>
+          ${trainerCoordsMarkup("ONDERZOEKSPLEK / PLAATJE", "72 meter vanaf het hek")}
+          <p>Onderzoek je plek nauwkeurig en let vooral op geschreven instructies. Een commando moet feilloos en secuur verslag kunnen uitbrengen aan het hoofdkwartier, ook als de opdracht pas later duidelijk wordt.</p>
+          <div class="task-block">
+            <h2>Opdracht</h2>
+            <p>Neem vooral de geschreven instructies goed in je op. Vervolg daarna het pad tot je een wandelpaaltje tegenkomt.</p>
+          </div>
+          <div class="button-stack">
+            <button class="btn" type="button" data-action="at-route-post">IK STA BIJ HET WANDELPAALTJE</button>
+          </div>
+        `;
+      const content = state.fenceStep === "report" ? reportContent : state.fenceStep === "ready" ? `
+        <p class="kicker">FASE 6</p>
         <h1 id="fence-title">Verder Naar De Keien</h1>
         ${trainerCoordsMarkup("KEIEN", TRAINER_COORDS.stones)}
-        <p>Rapportage foutloos ontvangen. Geen letter verkeerd, geen spatie verdwaald. Dat begint zowaar op discipline te lijken. Nu door naar de volgende observatieproef.</p>
+        <p>Rapportage foutloos ontvangen. Geen letter verkeerd, geen spatie verdwaald. Je hebt goed gekeken en het plaatje correct gelezen. Nu mag je verder.</p>
         <div class="button-stack">
           <button class="btn" type="button" data-action="send-report">VERDER NAAR DE KEIEN</button>
         </div>
       ` : `
-        <p class="kicker">FASE 4.5</p>
-        <h1 id="fence-title">De Afrasteringsmars</h1>
-        ${trainerCoordsMarkup("HEK / START AFRASTERING", TRAINER_COORDS.fence)}
-        ${trainerCoordsMarkup("BANKJE / PLAATJE", "na 12 palen vanaf het hek")}
-        <p>Het hek is ontgrendeld. Je bent binnen, maar je bent er nog niet. Een commando gebruikt de omgeving om afstanden te meten als hulpmiddelen ontbreken. Volg vanaf het hek het pad langs de palen met het prikkeldraad.</p>
+        <p class="kicker">FASE 5</p>
+        <h1 id="fence-title">Het Wandelpad</h1>
+        ${trainerCoordsMarkup("HEK / START WANDELPAD", TRAINER_COORDS.fence)}
+        ${trainerCoordsMarkup("BANKJE / PLAATJE", "72 meter vanaf het hek")}
+        <p>Het hek is ontgrendeld. Je bent binnen, maar je bent er nog niet. Een commando moet soms ook praten onder druk. Vanaf nu zing je hardop een marsliedje tot de volgende plek. Daardoor kun je niet meer veilig in je hoofd stappen tellen en moet je de omgeving slimmer gebruiken.</p>
         <div class="task-block">
-          <h2>Tactische Informatie</h2>
-          <p>De afstand tussen deze palen is een vast patroon van ongeveer 6 meter (zo'n 6 stappen). Je moet exact 12 palen afrekenen - een totale mars van ongeveer 65 meter - tot je stuit op een houten rustpunt (een bankje).</p>
+          <h2>Opdracht</h2>
+          <p>Volg vanaf het hek het wandelpad. Zing onderweg onafgebroken een marsliedje. Leg 72 meter af en houd halt bij het houten rustpunt.</p>
+        </div>
+        <div class="intel-block">
+          <button class="btn secondary" type="button" data-action="fence-hint">OPVRAGEN INTEL (HINT)</button>
+          ${fenceHintMarkup}
         </div>
         <div class="button-stack">
-          <button class="btn" type="button" data-action="at-bench">IK STA BIJ HET BANKJE</button>
+          <button class="btn" type="button" data-action="at-bench">IK STA BIJ HET HOUTEN RUSTPUNT</button>
         </div>
       `;
 
@@ -1123,6 +1138,8 @@
       state.tunnelStep = "stones";
       state.finaleStep = "choices";
       state.fenceStep = "march";
+      state.plaqueStep = "observe";
+      state.fenceHint = false;
       state.missionOneStep = "circumference";
       state.missionOneCircumference = null;
       state.hints = { 1: false, 2: false, 3: false };
@@ -1206,7 +1223,7 @@
 
     function requestHint() {
       state.hints[state.mission] = true;
-      addPenalty(120, "Zwak, cursist! +2 strafminuten toegevoegd wegens gebrek aan commando-inzicht.");
+      addPenalty(120, missionData.copy.messages.hintPenalty);
       render();
     }
 
@@ -1231,7 +1248,7 @@
       const value = input && input.value.trim() !== "" ? Number(input.value.trim()) : NaN;
 
       if (!Number.isInteger(value) || value !== PURPLE_POST_TARGET) {
-        punishWrongAnswer("RECHTSOMKEERT CURSIST! Je hebt last van tunnelvisie en kijkt niet goed om je heen! Ga maar weer helemaal terug over het pad om ze opnieuw te tellen!");
+        punishWrongAnswer(missionData.copy.messages.tunnelWrong);
         if (input) {
           input.focus();
         }
@@ -1267,7 +1284,7 @@
         && Math.abs(coords.lng - GPS_TARGET.lng) <= GPS_TARGET.tolerance;
 
       if (!valid) {
-        punishWrongAnswer("GPS-COORDINATEN ONJUIST. BLIJF DOORLOPEN TOT DE EERSTE ECHTE HINDERNIS EN CONTROLEER JE TELEFOON!");
+        punishWrongAnswer(missionData.copy.messages.gpsWrong);
         if (input) {
           input.focus();
         }
@@ -1297,7 +1314,7 @@
       const value = input ? input.value.trim() : "";
 
       if (value !== PLAQUE_TEXT) {
-        punishWrongAnswer("COMMANDO FAAL! Rapportage onnauwkeurig. Een marinier werkt met 100% precisie. Kijk opnieuw en typ de tekst EXACT over!");
+        punishWrongAnswer(missionData.copy.messages.plaqueWrong);
         if (input) {
           input.focus();
         }
@@ -1396,8 +1413,22 @@
         feelFence();
       }
 
+      if (action === "fence-hint") {
+        state.fenceHint = true;
+        addPenalty(120, missionData.copy.messages.fenceHintPenalty);
+        render();
+        focusApp();
+      }
+
       if (action === "at-bench") {
         state.fenceStep = "report";
+        state.plaqueStep = "observe";
+        render();
+        focusApp();
+      }
+
+      if (action === "at-route-post") {
+        state.plaqueStep = "question";
         render();
         focusApp();
       }
@@ -1435,8 +1466,31 @@
       }
     });
 
-    updateTimer();
-    render();
+    async function init() {
+      try {
+        const response = await fetch("mission-data.json", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`mission-data.json laden mislukt (${response.status})`);
+        }
+
+        missionData = await response.json();
+        updateTimer();
+        render();
+      } catch (error) {
+        app.innerHTML = `
+          <section class="screen" aria-labelledby="load-error-title">
+            <div class="screen-frame">
+              <p class="kicker">SYSTEEMFOUT</p>
+              <h1 id="load-error-title">Mission Data Ontbreekt</h1>
+              <p>De missiegegevens konden niet worden geladen. Start deze site via GitHub Pages of een lokale webserver, zodat <code>mission-data.json</code> beschikbaar is.</p>
+              <p class="muted">${error.message}</p>
+            </div>
+          </section>
+        `;
+      }
+    }
+
+    init();
   </script>
 </body>
 </html>

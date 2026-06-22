@@ -65,6 +65,52 @@
     "mission2HeightMeters": 7,
     "mission3Branches": 54,
     "purplePostsFromBenchToStones": 5,
+    "benchSynonyms": [
+      "bank",
+      "bankje",
+      "bosbank",
+      "bosbankje",
+      "houten bank",
+      "houten bankje",
+      "rustbank",
+      "rustbankje",
+      "rustplek",
+      "zitplek",
+      "zitbank",
+      "zitbankje",
+      "zitje",
+      "bankstel",
+      "picknickbank",
+      "tuinbank",
+      "parkbank",
+      "parkbankje"
+    ],
     "plaqueText": "17 juni 2017 Aat en Frances 40 jaar getrouwd aangeboden door familie en vrienden"
+  },
+  "copy": {
+    "rebukes": [
+      "NEGATIEF CURSIST, BEREKENING ONJUIST. BLESSEER JEZELF NIET EN DENK NA!",
+      "HAD BETER GEKUND, CURSIST! TEMPO!",
+      "FOUTE PEILING, CURSIST. HERBEREKEN EN HERPAK JEZELF!",
+      "JE KOMPAS HUILT ZACHTJES IN DE MODDER, CURSIST!",
+      "ALS DIT PACING IS, DAN IS EEN SLINGERPAD EEN SNELWEG!",
+      "DE BOOM STAAT STIL EN TOCH RAAK JE HEM KWIJT. KNAP WERK, CURSIST!",
+      "JE REKENWERK MARSJEERT DE VERKEERDE KANT OP!",
+      "DE INSTRUCTEUR KRIJGT HIER GRIJZE HAREN VAN. EN DIE HAD HIJ AL!",
+      "DIT ANTWOORD IS ZO SCHEEF ALS EEN NATTE TAK IN TEGENWIND!",
+      "FOCUS, CURSIST. DE NATUUR GEEFT GEEN HERKANSING, IK WEL.",
+      "JE ZIT ERNAAST. NIET EEN BEETJE ERNAAST. CAMPINGTAFEL-ERNAAST.",
+      "ALS GPS VERBODEN IS, MOET JE HOOFD WEL AAN STAAN!",
+      "DE VOSSENBERG NOTEERT: CURSIST HEEFT NOG WAT ONTWIKKELPUNTEN."
+    ],
+    "messages": {
+      "hintPenalty": "Zwak, cursist! +2 strafminuten toegevoegd wegens gebrek aan commando-inzicht.",
+      "wrongAnswerSuffix": "+2 STRAFMINUTEN.",
+      "tunnelWrong": "RECHTSOMKEERT CURSIST! Je hebt last van tunnelvisie en kijkt niet goed om je heen! Ga maar weer helemaal terug over het pad om ze opnieuw te tellen!",
+      "gpsWrong": "GPS-COORDINATEN ONJUIST. BLIJF DOORLOPEN TOT DE EERSTE ECHTE HINDERNIS EN CONTROLEER JE TELEFOON!",
+      "placeWrong": "NEGATIEF CURSIST! Beschrijving van de plek onvoldoende scherp. Kijk opnieuw en geef in 1 woord aan wat deze plek is.",
+      "plaqueWrong": "COMMANDO FAAL! Rapportage onnauwkeurig. Een marinier werkt met 100% precisie. Kijk opnieuw en typ de tekst EXACT over!",
+      "fenceHintPenalty": "Zwak, cursist! +2 strafminuten toegevoegd omdat je het patroon langs het wandelpad niet zelf spotte."
+    }
   }
 }
