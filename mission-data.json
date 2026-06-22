@@ -1,0 +1,70 @@
+{
+  "locations": [
+    {
+      "id": "start_oesterzwammen",
+      "label": "Startpunt / oesterzwammen",
+      "lat": 52.815835,
+      "lng": 6.548451,
+      "source": "afgeleid uit route naar missie 1"
+    },
+    {
+      "id": "mission_1_dikke_boom",
+      "label": "Missie 1 / dikke boom",
+      "lat": 52.816178,
+      "lng": 6.547542,
+      "source": "opdrachtdata"
+    },
+    {
+      "id": "mission_2_dode_reus",
+      "label": "Missie 2 / dode reus",
+      "lat": 52.816415,
+      "lng": 6.546675,
+      "source": "opdrachtdata"
+    },
+    {
+      "id": "mission_3_gevallen_boom",
+      "label": "Missie 3 / gevallen boom",
+      "lat": 52.816668,
+      "lng": 6.545142,
+      "source": "photo/4_coords_gevallen_boom.jpg"
+    },
+    {
+      "id": "mission_3_6_kruising",
+      "label": "Kruising voor blinde mars",
+      "lat": 52.817024,
+      "lng": 6.545692,
+      "source": "photo/5_coords_wandelpad_lengte.jpg"
+    },
+    {
+      "id": "mission_4_hek",
+      "label": "Hek",
+      "lat": 52.818072,
+      "lng": 6.549939,
+      "source": "photo/6_coords_hek.jpg"
+    },
+    {
+      "id": "mission_5_keien",
+      "label": "Keien",
+      "lat": 52.821173,
+      "lng": 6.544594,
+      "source": "photo/8_coords_keien.jpg"
+    }
+  ],
+  "derivedRoutes": [
+    {
+      "from": "mission_3_6_kruising",
+      "to": "mission_4_hek",
+      "distanceMeters": 308,
+      "bearingDegrees": 68,
+      "note": "Afgerond uit GPS-coordinaten; speler schat zelf aantal stappen."
+    }
+  ],
+  "answers": {
+    "mission1CircumferenceCm": 265,
+    "mission1DiameterCmRange": [80, 89],
+    "mission2HeightMeters": 7,
+    "mission3Branches": 54,
+    "purplePostsFromBenchToStones": 5,
+    "plaqueText": "17 juni 2017 Aat en Frances 40 jaar getrouwd aangeboden door familie en vrienden"
+  }
+}

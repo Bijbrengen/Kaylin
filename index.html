@@ -502,26 +502,50 @@
     const flashBanner = document.getElementById("flash");
     const isTrainerMode = new URLSearchParams(window.location.search).get("role") === "trainer";
 
-    const PURPLE_POST_TARGET = 3;
+    const PURPLE_POST_TARGET = 5;
     const GPS_TARGET = {
-      lat: 52.816668,
-      lng: 6.543542,
+      lat: 52.818072,
+      lng: 6.549939,
       tolerance: 0.00015
     };
+    const TRAINER_COORDS = {
+      start: "52.815835, 6.548451",
+      mission1: "52.816178, 6.547542",
+      mission2: "52.816415, 6.546675",
+      mission3: "52.816668, 6.545142",
+      crossing: "52.817024, 6.545692",
+      fence: "52.818072, 6.549939",
+      stones: "52.821173, 6.544594"
+    };
+    const CROSSING_TO_FENCE = {
+      distanceMeters: 308,
+      bearingDegrees: 68
+    };
+    const PLAQUE_TEXT = "17 juni 2017 Aat en Frances 40 jaar getrouwd aangeboden door familie en vrienden";
 
     const rebukes = [
       "NEGATIEF CURSIST, BEREKENING ONJUIST. BLESSEER JEZELF NIET EN DENK NA!",
       "HAD BETER GEKUND, CURSIST! TEMPO!",
       "FOUTE PEILING, CURSIST. HERBEREKEN EN HERPAK JEZELF!",
-      "DIT IS GEEN WANDELCLUB. CONTROLEER JE METING!"
+      "JE KOMPAS HUILT ZACHTJES IN DE MODDER, CURSIST!",
+      "ALS DIT PACING IS, DAN IS EEN SLINGERPAD EEN SNELWEG!",
+      "DE BOOM STAAT STIL EN TOCH RAAK JE HEM KWIJT. KNAP WERK, CURSIST!",
+      "JE REKENWERK MARSJEERT DE VERKEERDE KANT OP!",
+      "DE INSTRUCTEUR KRIJGT HIER GRIJZE HAREN VAN. EN DIE HAD HIJ AL!",
+      "DIT ANTWOORD IS ZO SCHEEF ALS EEN NATTE TAK IN TEGENWIND!",
+      "FOCUS, CURSIST. DE NATUUR GEEFT GEEN HERKANSING, IK WEL.",
+      "JE ZIT ERNAAST. NIET EEN BEETJE ERNAAST. CAMPINGTAFEL-ERNAAST.",
+      "ALS GPS VERBODEN IS, MOET JE HOOFD WEL AAN STAAN!",
+      "DE VOSSENBERG NOTEERT: CURSIST HEEFT NOG WAT ONTWIKKELPUNTEN."
     ];
+    let rebukeQueue = [];
 
     const missions = {
       1: {
         tag: "MISSIE 1",
         title: "DE DIKKE BOOM",
-        coords: "",
-        image: "photo/1_uitdaging_dikke_boom.jpg",
+        coords: TRAINER_COORDS.mission1,
+        image: "photo/2_uitdaging_dikke_boom.jpg",
         imageAlt: "Monumentale dikke boom op Landgoed de Vossenberg.",
         briefing: "Vanaf het startpunt navigeer je 72 meter in een kompashoek van 302&deg;. Je treft hier een levende, monumentale woudreus aan. De gemeente Midden-Drenthe handhaaft een kapverbod voor bomen met een diameter van 40 cm of meer op een hoogte van 1,30 meter.",
         task: "Bepaal de omtrek van de stam op exact 1,30 meter hoogte. Voer daarna de omtrek in hele centimeters in.",
@@ -535,10 +559,10 @@
         tag: "MISSIE 2",
         title: "DE DODE REUS",
         coords: "52.816415, 6.546675",
-        image: "photo/2_uitdaging_dode_boom.jpg",
+        image: "photo/3_uitdaging_dode_boom.jpg",
         imageAlt: "Kale dode boomstam in het terrein.",
         briefing: "Vanaf de dikke boom volgt een tactische verplaatsing. Richting: EXACT 293 graden (West-Noordwest). Afstand: EXACT 63 meter. Gebruik je pacing (stappen tellen). Je stuit op een ge&iuml;soleerde, kale, dode boomstam.",
-        task: "Bepaal de hoogte van deze boom met de boswachtersmethode (de arm-stok-truc). Hoe hoog is deze dode boom in hele meters?",
+        task: "Bepaal de hoogte van deze dode boom. Hoe hoog is deze dode boom in hele meters?",
         label: "Hoogte in hele meters",
         placeholder: "7",
         success: "Correct! Hier halen we exact 21 ongespleten kachelblokken van 33 cm uit voor de haard!",
@@ -549,10 +573,10 @@
         tag: "MISSIE 3",
         title: "DE GEVAARLIJKE HANGER",
         coords: "52.816668, 6.545142",
-        image: "photo/3_uitdaging_gevallen_boom.jpg",
+        image: "photo/4_uitdaging_gevallen_boom.jpg",
         imageAlt: "Omgevallen boom die de doorgang blokkeert.",
         briefing: "Vanaf de dode reus volgt de eindspurt naar de gevaarlijke hanger. Richting: EXACT 281 graden (vrijwel pal West). Afstand: EXACT 107 meter. Pas op: hier ligt een gevaarlijke, omgevallen boom die de doorgang blokkeert.",
-        task: "Voordat de stam verwerkt kan worden, moeten de dikke takken eraf. Neem een referentietak van 5 cm dik uit je toolbox. Tel exact hoeveel zijtakken die dikker zijn dan 5 cm eerst afgezaagd moeten worden.",
+        task: "Voordat de hangende boom verwerkt kan worden, moeten de stevige zijtakken eraf. Tel exact hoeveel zijtakken minimaal 5 cm dik zijn en dus eerst afgezaagd moeten worden. Dunnere takken kun je afbreken.",
         label: "Aantal dikke zijtakken",
         placeholder: "54",
         success: "Klaar! 54 takken geteld. De weg is vrijgemaakt.",
@@ -571,6 +595,7 @@
       autoAdvanceId: null,
       tunnelStep: "stones",
       finaleStep: "choices",
+      fenceStep: "march",
       missionOneStep: "circumference",
       missionOneCircumference: null,
       hints: {
@@ -637,13 +662,21 @@
     }
 
     function randomRebuke() {
-      return rebukes[Math.floor(Math.random() * rebukes.length)];
+      if (rebukeQueue.length === 0) {
+        rebukeQueue = [...rebukes].sort(() => Math.random() - 0.5);
+      }
+
+      return rebukeQueue.pop();
     }
 
     function addPenalty(seconds, message) {
       state.elapsed += seconds;
       updateTimer();
       showFlash(message);
+    }
+
+    function punishWrongAnswer(message = randomRebuke()) {
+      addPenalty(120, `${message} +2 STRAFMINUTEN.`);
     }
 
     function trainerPlaceholder(value, fallback = "voer antwoord in") {
@@ -691,6 +724,10 @@
       `;
     }
 
+    function trainerCoordsMarkup(label, coords) {
+      return isTrainerMode ? `<div class="coords">TRAINER COORDS - ${label}: ${coords}</div>` : "";
+    }
+
     function setCelebrationMode(enabled) {
       document.body.classList.toggle("celebration", enabled);
     }
@@ -701,8 +738,9 @@
           <div class="screen-frame">
             <p class="kicker">FASE 0: OMGEVINGSGEHEUGEN</p>
             <h1 id="prebriefing-title">De Pre-Briefing</h1>
+            ${trainerCoordsMarkup("STARTPUNT", TRAINER_COORDS.start)}
             <p class="briefing-copy">Als goede commando moet je in staat zijn dingen te onthouden van je omgeving. Een scherpe blik is het verschil tussen slagen en falen. Kijk goed naar de foto. Herken deze plek meteen. Ga zo snel mogelijk naar deze locatie toe op het landgoed. Pas als je er staat, druk je op de startknop.</p>
-            ${imageMarkup("photo/0_uitdaging_oesterzwammen.jpg", "Boomstronk met het oesterzwammenbriefje op het startpunt.", "success-image")}
+            ${imageMarkup("photo/1_uitdaging_oesterzwammen.jpg", "Boomstronk met het oesterzwammenbriefje op het startpunt.", "success-image")}
             <div class="button-stack">
               <button class="btn" type="button" data-action="start">IK STA OP HET STARTPUNT (START DE OPLEIDING)</button>
             </div>
@@ -736,9 +774,12 @@
       const fieldPlaceholder = isMissionOneDiameter ? "84" : mission.placeholder;
       const fieldPlaceholderFallback = isMissionOneDiameter ? "diameter" : state.mission === 1 ? "omtrek" : "antwoord";
       const submitLabel = isMissionOneDiameter ? "BEVESTIG DIAMETER" : "BEVESTIG ANTWOORD";
-      const hintSuggestion = state.mission === 1
-        ? `<p class="hint-suggestion">Suggestie: kompas, richtinggevoel en meters vreten. Er ligt een meetlint in de kapschuur.</p>`
-        : "";
+      const hintSuggestions = {
+        1: `<p class="hint-suggestion">Suggestie: kompas, richtinggevoel en meters vreten. Er ligt een meetlint in de kapschuur.</p>`,
+        2: `<p class="hint-suggestion">Suggestie: gebruik de boswachtersmethode, ook bekend als de arm-stok-truc. Pak een stok van ongeveer een armlengte, houd je arm gestrekt en de stok rechtop. Loop achteruit tot de top van de stok optisch samenvalt met de top van de boom en de onderkant van de stok met de voet van de stam. De afstand van jou tot de boom is dan ongeveer de hoogte van de boom. Pestend detail, cursist: een stok van een armlengte ligt in de kapschuur.</p>`,
+        3: `<p class="hint-suggestion">Suggestie: gebruik een referentietak van 5 cm dik om te bepalen welke zijtakken meetellen. Alles van minimaal die dikte moet eerst afgezaagd worden; alles dunner kun je afbreken.</p>`
+      };
+      const hintSuggestion = hintSuggestions[state.mission] || "";
       const hintMarkup = state.hints[state.mission] ? `
         ${imageMarkup(mission.image, mission.imageAlt)}
         ${hintSuggestion}
@@ -749,7 +790,7 @@
           <div class="screen-frame">
             <p class="kicker">${mission.tag}</p>
             <h1 id="mission-title">${mission.title}</h1>
-            ${isTrainerMode && mission.coords ? `<div class="coords">COORDS: ${mission.coords}</div>` : ""}
+            ${mission.coords ? trainerCoordsMarkup(mission.title, mission.coords) : ""}
             <p>${mission.briefing}</p>
 
             <div class="task-block">
@@ -776,7 +817,7 @@
       const mission = missions[state.completedMission];
       const isMissionThree = state.completedMission === 3;
       const buttonMarkup = isMissionThree ? `
-        <div class="auto-advance">TUNNELVISIE-CONTROLE WORDT GELADEN...</div>
+        <div class="auto-advance">BLINDE MARS WORDT GELADEN...</div>
       ` : `
         <div class="button-stack">
           <button class="btn" type="button" data-action="proceed">${mission.nextLabel}</button>
@@ -798,7 +839,8 @@
       if (isMissionThree) {
         clearAutoAdvance();
         state.autoAdvanceId = window.setTimeout(() => {
-          state.view = "tunnel";
+          setRunning(false);
+          state.view = "calibration";
           state.completedMission = null;
           render();
           focusApp();
@@ -806,12 +848,45 @@
       }
     }
 
+    function renderCalibration() {
+      app.innerHTML = `
+        <section class="screen" aria-labelledby="calibration-title">
+          <div class="screen-frame">
+            <p class="kicker">OEFENFASE - TELT NIET MEE</p>
+            <h1 id="calibration-title">Richting En Stappen Kalibreren</h1>
+            ${trainerCoordsMarkup("KRUISING", TRAINER_COORDS.crossing)}
+            ${trainerCoordsMarkup("HEK", TRAINER_COORDS.fence)}
+            ${trainerCoordsMarkup("DATA", "zie mission-data.json")}
+            <p>Cursist, deze oefening telt niet mee voor je Tactical Time. Je mag nu controleren, leren en kalibreren voordat de blinddoek weer om gaat.</p>
+            ${imageMarkup("photo/5_uitdaging_wandelpad_lengte.jpg", "Startplek van de blinde mars vanaf de kruising.", "success-image")}
+            <div class="task-block">
+              <h2>Oefening 1</h2>
+              <p>Sta bij de gevallen boom en kijk richting de kruising van de weg waaraan de gevallen boom ligt. Schat eerst de richting ten opzichte van het Noorden. Check daarna met je kompas wat de echte hoek is.</p>
+            </div>
+            <div class="task-block">
+              <h2>Oefening 2</h2>
+              <p>Schat hoeveel stappen het is tot de kruising. Loop naar de kruising en tel je eigen stappen. Gebruik dit om jouw persoonlijke paslengte scherp te krijgen.</p>
+            </div>
+            <div class="calibration-log">
+              ${integerInputMarkup("bearing-log", "Geschatte hoek naar de kruising", "trainer", "graden")}
+              ${integerInputMarkup("steps-log", "Getelde stappen tot de kruising", "trainer", "stappen")}
+            </div>
+            <div class="button-stack">
+              <button class="btn" type="button" data-action="start-blind-march">IK STA OP DE KRUISING - START BLINDE MARS</button>
+            </div>
+          </div>
+        </section>
+      `;
+      bindIntegerInputs();
+    }
+
     function renderTunnel() {
       const isQuestion = state.tunnelStep === "question";
       const content = isQuestion ? `
         <p class="kicker">CONTROLEFOUT</p>
         <h1 id="tunnel-title">Houd Halt!</h1>
-        <p>Je hebt gefocust op de grond om de stenen te vinden, maar heb je om je heen gekeken? Hoeveel paarse routepaaltjes ben je zojuist gepasseerd tussen de hanger en deze stenen?</p>
+        ${trainerCoordsMarkup("KEIEN", TRAINER_COORDS.stones)}
+        <p>Je hebt gefocust op de grond om de stenen te vinden, maar heb je om je heen gekeken? Hoeveel paarse routepaaltjes ben je zojuist gepasseerd vanaf het bankje tot aan deze stenen?</p>
         <form class="answer-form" data-action="tunnel-answer">
           ${integerInputMarkup("purple-posts", "Aantal paarse routepaaltjes", String(PURPLE_POST_TARGET), "aantal")}
           <button class="btn" type="submit">RAPPORTEER AANTAL</button>
@@ -819,8 +894,9 @@
       ` : `
         <p class="kicker">MISSIE 3.5</p>
         <h1 id="tunnel-title">Tunnelvisie Breken</h1>
+        ${trainerCoordsMarkup("KEIEN", TRAINER_COORDS.stones)}
         <p>Loop door over het normale wandelpad. Let extreem goed op. Volg het pad tot je de stenen van de foto op je scherm ziet liggen. Maak als commando een identieke foto van deze stenen ter rapportage voor het intel-pakket.</p>
-        ${imageMarkup("photo/5_uitdaging_keien.jpg", "Stenen op het pad voor het intel-pakket.", "success-image")}
+        ${imageMarkup("photo/8_uitdaging_keien.jpg", "Stenen op het pad voor het intel-pakket.", "success-image")}
         <div class="button-stack">
           <button class="btn" type="button" data-action="stones-photo">IK STA BIJ DE STENEN EN HEB DE FOTO GEMAAKT</button>
         </div>
@@ -842,14 +918,16 @@
           <div class="screen-frame">
             <p class="kicker">MISSIE 3.6</p>
             <h1 id="gps-title">De GPS-Verplaatsing</h1>
-            <p>Eigenlijk werkt het makkelijker als je GPS hebt, want dan hoef je helemaal geen afstanden te meten of voetstappen te tellen. Jouw huidige GPS-co&ouml;rdinaten bij de stenen zijn: 52.821173, 6.544594.</p>
+            ${trainerCoordsMarkup("KEIEN / START GPS-VERPLAATSING", TRAINER_COORDS.stones)}
+            ${trainerCoordsMarkup("HINDERNIS / HEK", TRAINER_COORDS.fence)}
+            <p>Eigenlijk werkt het makkelijker als je GPS hebt, want dan hoef je helemaal geen afstanden te meten of voetstappen te tellen. Jouw huidige positie is bij de stenen.</p>
             <div class="task-block">
               <h2>Opdracht</h2>
-              <p>De volgende opdracht is simpel: volg vanaf hier het pad en loop zo ver mogelijk door zonder ergens af te slaan. Houd halt op de plek waar je de allereerste hindernis tegenkomt waarbij je onmogelijk nog recht door kunt lopen. Voer op die plek de exacte GPS-co&ouml;rdinaten van je telefoon in om de finale te ontgrendelen.</p>
+              <p>De volgende opdracht is simpel: volg vanaf hier het pad en loop zo ver mogelijk door zonder ergens af te slaan. Houd halt op de plek waar je de allereerste hindernis tegenkomt waarbij je onmogelijk nog recht door kunt lopen. Voer op die plek de exacte GPS-co&ouml;rdinaten van je telefoon in om het eindrapport te ontgrendelen.</p>
             </div>
             <form class="answer-form" data-action="gps-answer">
-              ${textInputMarkup("gps-input", "GPS-co&ouml;rdinaten", "52.816668, 6.543542", "latitude, longitude")}
-              <button class="btn" type="submit">ONTGRENDEL DE BLINDE MARS</button>
+              ${textInputMarkup("gps-input", "GPS-co&ouml;rdinaten", "52.818072, 6.549939", "latitude, longitude")}
+              <button class="btn" type="submit">VERSTUUR GPS-RAPPORT</button>
             </form>
           </div>
         </section>
@@ -880,10 +958,12 @@
           <div class="screen-frame">
             <p class="kicker">MISSIE 4</p>
             <h1 id="finale-title">De Blinde Mars</h1>
-            <p>STATION STANDBY. Tijd voor de ultieme blinde beproeving richting het hek bij co&ouml;rdinaten 52.816668, 6.543542.</p>
+            ${trainerCoordsMarkup("HEK", TRAINER_COORDS.fence)}
+            ${trainerCoordsMarkup("KRUISING NAAR HEK", `${CROSSING_TO_FENCE.distanceMeters} meter, ${CROSSING_TO_FENCE.bearingDegrees} graden`)}
+            <p>STATION STANDBY. Je staat op de kruising. Tijd voor de ultieme blinde beproeving richting het hek.</p>
             <div class="task-block">
               <h2>Buddy-instructie</h2>
-              <p>Blinddoek om. Je kameraden (buddies) lopen vanaf nu links en rechts van je. Voel hun aanwezigheid; zolang je niet bij hen wegbeweegt, kan jou niets overkomen. Merk je dat zij wat afbuigen, dan leiden zij jou blijkbaar om een hindernis heen. Jij hoeft alleen maar aan je stappen te denken en vooruit te lopen. Wij zorgen dat je niet struikelt. Loop geblinddoekt exact 22 meter over het dwarspad. Ben je er volgens jouw stappentelling? Zeg hardop: 'Hier is het!' en reik je hand uit naar links.</p>
+              <p>Blinddoek om. Je kameraden (buddies) lopen vanaf nu links en rechts van je. Jij schat zelf de afstand tot het hek in stappen op basis van je oefening. Elke keer als je denkt dat je er bent, draai je richting het hek en mag je kijken. Zie je dat je te ver bent of nog niet ver genoeg, dan gaat de blinddoek weer om en corrigeer je met extra stappen. Pas als je recht voor het hek staat, mag je erdoor.</p>
             </div>
             <div class="choice-grid">
               <button class="btn secondary" type="button" data-action="feel-nothing">Ik voel niks...</button>
@@ -897,14 +977,61 @@
       bindIntegerInputs();
     }
 
+    function renderFenceMarch() {
+      const content = state.fenceStep === "report" ? `
+        <p class="kicker">PRECISIE-RAPPORTAGE</p>
+        <h1 id="fence-title">Het Bankje</h1>
+        ${trainerCoordsMarkup("BANKJE / PLAATJE", "na 12 palen vanaf het hek")}
+        <p>Houd halt bij het bankje. Op de leuning bevindt zich een ovaal, messing plaatje. Kijk er extreem goed naar. Een commando moet feilloos en secuur verslag kunnen uitbrengen aan het hoofdkwartier.</p>
+        <div class="task-block">
+          <h2>Taak</h2>
+          <p>Typ de tekst die op het plaatje staat EXACT over in het onderstaande veld.</p>
+        </div>
+        <form class="answer-form" data-action="plaque-answer">
+          ${textInputMarkup("plaque-input", "Tekst op het messing plaatje", PLAQUE_TEXT, "exacte tekst")}
+          <button class="btn" type="submit">CONTROLEER RAPPORTAGE</button>
+        </form>
+      ` : state.fenceStep === "ready" ? `
+        <p class="kicker">RAPPORTAGE GOEDGEKEURD</p>
+        <h1 id="fence-title">Verder Naar De Keien</h1>
+        ${trainerCoordsMarkup("KEIEN", TRAINER_COORDS.stones)}
+        <p>Rapportage foutloos ontvangen. Geen letter verkeerd, geen spatie verdwaald. Dat begint zowaar op discipline te lijken. Nu door naar de volgende observatieproef.</p>
+        <div class="button-stack">
+          <button class="btn" type="button" data-action="send-report">VERDER NAAR DE KEIEN</button>
+        </div>
+      ` : `
+        <p class="kicker">FASE 4.5</p>
+        <h1 id="fence-title">De Afrasteringsmars</h1>
+        ${trainerCoordsMarkup("HEK / START AFRASTERING", TRAINER_COORDS.fence)}
+        ${trainerCoordsMarkup("BANKJE / PLAATJE", "na 12 palen vanaf het hek")}
+        <p>Het hek is ontgrendeld. Je bent binnen, maar je bent er nog niet. Een commando gebruikt de omgeving om afstanden te meten als hulpmiddelen ontbreken. Volg vanaf het hek het pad langs de palen met het prikkeldraad.</p>
+        <div class="task-block">
+          <h2>Tactische Informatie</h2>
+          <p>De afstand tussen deze palen is een vast patroon van ongeveer 6 meter (zo'n 6 stappen). Je moet exact 12 palen afrekenen - een totale mars van ongeveer 65 meter - tot je stuit op een houten rustpunt (een bankje).</p>
+        </div>
+        <div class="button-stack">
+          <button class="btn" type="button" data-action="at-bench">IK STA BIJ HET BANKJE</button>
+        </div>
+      `;
+
+      app.innerHTML = `
+        <section class="screen" aria-labelledby="fence-title">
+          <div class="screen-frame">
+            ${content}
+          </div>
+        </section>
+      `;
+    }
+
     function renderFalseMission() {
       app.innerHTML = `
         <section class="screen" aria-labelledby="false-title">
           <div class="screen-frame">
             <p class="kicker">MISSIE 5</p>
             <h1 id="false-title">DE OVERSTEEK</h1>
+            ${trainerCoordsMarkup("KANAAL", "eindpunt na GPS-verplaatsing")}
             <p>Zwem onmiddellijk naar de overkant van het water en begin je baantjes te tellen!</p>
-            ${imageMarkup("photo/7_uitdaging_kanaal.jpg", "Water bij de valse oversteek.", "success-image")}
+            ${imageMarkup("photo/10_uitdaging_kanaal.jpg", "Water bij de valse oversteek.", "success-image")}
           </div>
         </section>
       `;
@@ -950,6 +1077,11 @@
         return;
       }
 
+      if (state.view === "calibration") {
+        renderCalibration();
+        return;
+      }
+
       if (state.view === "tunnel") {
         renderTunnel();
         return;
@@ -962,6 +1094,11 @@
 
       if (state.view === "finale") {
         renderFinale();
+        return;
+      }
+
+      if (state.view === "fenceMarch") {
+        renderFenceMarch();
         return;
       }
 
@@ -985,6 +1122,7 @@
       state.elapsed = 0;
       state.tunnelStep = "stones";
       state.finaleStep = "choices";
+      state.fenceStep = "march";
       state.missionOneStep = "circumference";
       state.missionOneCircumference = null;
       state.hints = { 1: false, 2: false, 3: false };
@@ -1027,7 +1165,7 @@
 
       if (state.mission === 1 && state.missionOneStep === "circumference") {
         if (!Number.isInteger(value) || !mission.validate(value)) {
-          showFlash(randomRebuke());
+          punishWrongAnswer();
           if (input) {
             input.focus();
           }
@@ -1044,7 +1182,7 @@
 
       if (state.mission === 1 && state.missionOneStep === "diameter") {
         if (!Number.isInteger(value) || value < 80 || value > 89) {
-          showFlash(randomRebuke());
+          punishWrongAnswer();
           if (input) {
             input.focus();
           }
@@ -1056,7 +1194,7 @@
       }
 
       if (!Number.isInteger(value) || !mission.validate(value)) {
-        showFlash(randomRebuke());
+        punishWrongAnswer();
         if (input) {
           input.focus();
         }
@@ -1079,12 +1217,21 @@
       focusApp();
     }
 
+    function startBlindMarch() {
+      hideFlash();
+      setRunning(true);
+      state.finaleStep = "choices";
+      state.view = "finale";
+      render();
+      focusApp();
+    }
+
     function submitTunnelAnswer() {
       const input = document.getElementById("purple-posts");
       const value = input && input.value.trim() !== "" ? Number(input.value.trim()) : NaN;
 
       if (!Number.isInteger(value) || value !== PURPLE_POST_TARGET) {
-        showFlash("RECHTSOMKEERT CURSIST! Je hebt last van tunnelvisie en kijkt niet goed om je heen! Ga maar weer helemaal terug over het pad om ze opnieuw te tellen!");
+        punishWrongAnswer("RECHTSOMKEERT CURSIST! Je hebt last van tunnelvisie en kijkt niet goed om je heen! Ga maar weer helemaal terug over het pad om ze opnieuw te tellen!");
         if (input) {
           input.focus();
         }
@@ -1120,14 +1267,14 @@
         && Math.abs(coords.lng - GPS_TARGET.lng) <= GPS_TARGET.tolerance;
 
       if (!valid) {
-        showFlash("GPS-COORDINATEN ONJUIST. BLIJF DOORLOPEN TOT DE EERSTE ECHTE HINDERNIS EN CONTROLEER JE TELEFOON!");
+        punishWrongAnswer("GPS-COORDINATEN ONJUIST. BLIJF DOORLOPEN TOT DE EERSTE ECHTE HINDERNIS EN CONTROLEER JE TELEFOON!");
         if (input) {
           input.focus();
         }
         return;
       }
 
-      unlockFinale();
+      startFalseMissionTwist();
     }
 
     function logFinaleSteps() {
@@ -1138,6 +1285,40 @@
     }
 
     function feelFence() {
+      hideFlash();
+      state.fenceStep = "march";
+      state.view = "fenceMarch";
+      render();
+      focusApp();
+    }
+
+    function submitPlaqueAnswer() {
+      const input = document.getElementById("plaque-input");
+      const value = input ? input.value.trim() : "";
+
+      if (value !== PLAQUE_TEXT) {
+        punishWrongAnswer("COMMANDO FAAL! Rapportage onnauwkeurig. Een marinier werkt met 100% precisie. Kijk opnieuw en typ de tekst EXACT over!");
+        if (input) {
+          input.focus();
+        }
+        return;
+      }
+
+      hideFlash();
+      state.fenceStep = "ready";
+      render();
+      focusApp();
+    }
+
+    function sendReportToHeadquarters() {
+      hideFlash();
+      state.tunnelStep = "stones";
+      state.view = "tunnel";
+      render();
+      focusApp();
+    }
+
+    function startFalseMissionTwist() {
       hideFlash();
       setRunning(false);
       state.finalTime = formatTime(state.elapsed);
@@ -1189,6 +1370,10 @@
         unlockFinale();
       }
 
+      if (action === "start-blind-march") {
+        startBlindMarch();
+      }
+
       if (action === "stones-photo") {
         state.tunnelStep = "question";
         render();
@@ -1210,6 +1395,16 @@
       if (action === "feel-fence") {
         feelFence();
       }
+
+      if (action === "at-bench") {
+        state.fenceStep = "report";
+        render();
+        focusApp();
+      }
+
+      if (action === "send-report") {
+        sendReportToHeadquarters();
+      }
     });
 
     app.addEventListener("submit", event => {
@@ -1227,6 +1422,11 @@
       const gpsForm = event.target.closest("[data-action='gps-answer']");
       if (gpsForm) {
         submitGpsAnswer();
+      }
+
+      const plaqueForm = event.target.closest("[data-action='plaque-answer']");
+      if (plaqueForm) {
+        submitPlaqueAnswer();
       }
 
       const finaleStepForm = event.target.closest("[data-action='finale-step-log']");
