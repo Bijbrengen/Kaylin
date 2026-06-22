@@ -559,7 +559,7 @@
         tag: "MISSIE 3",
         title: "DE GEVAARLIJKE HANGER",
         coords: "52.816668, 6.545142",
-        image: "photo/4_uitdaging_gevallen_boom.jpg",
+        image: "",
         imageAlt: "Omgevallen boom die de doorgang blokkeert.",
         briefing: "Vanaf de dode reus volgt de eindspurt naar de gevaarlijke hanger. Richting: EXACT 281 graden (vrijwel pal West). Afstand: EXACT 107 meter. Pas op: hier ligt een gevaarlijke, omgevallen boom die de doorgang blokkeert.",
         task: "Voordat de hangende boom verwerkt kan worden, moeten de stevige zijtakken eraf. Tel exact hoeveel zijtakken minimaal 5 cm dik zijn en dus eerst afgezaagd moeten worden. Dunnere takken kun je afbreken.",
@@ -582,7 +582,7 @@
       tunnelStep: "stones",
       finaleStep: "choices",
       fenceStep: "march",
-      plaqueStep: "observe",
+      plaqueStep: "describe",
       fenceHint: false,
       missionOneStep: "circumference",
       missionOneCircumference: null,
@@ -775,7 +775,7 @@
       };
       const hintSuggestion = hintSuggestions[state.mission] || "";
       const hintMarkup = state.hints[state.mission] ? `
-        ${imageMarkup(mission.image, mission.imageAlt)}
+        ${mission.image ? imageMarkup(mission.image, mission.imageAlt) : ""}
         ${hintSuggestion}
       ` : "";
 
@@ -824,7 +824,7 @@
             <p class="status-stamp">Intel bevestigd</p>
             <h1 id="success-title">Missie ${state.completedMission} voltooid</h1>
             <p>${mission.success}</p>
-            ${imageMarkup(mission.image, mission.imageAlt, "success-image")}
+            ${mission.image ? imageMarkup(mission.image, mission.imageAlt, "success-image") : ""}
             ${buttonMarkup}
           </div>
         </section>
@@ -954,6 +954,7 @@
             <h1 id="finale-title">De Blinde Mars</h1>
             ${trainerCoordsMarkup("HEK", TRAINER_COORDS.fence)}
             ${trainerCoordsMarkup("KRUISING NAAR HEK", `${CROSSING_TO_FENCE.distanceMeters} meter, ${CROSSING_TO_FENCE.bearingDegrees} graden`)}
+            ${imageMarkup("photo/4_uitdaging_gevallen_boom.jpg", "Gevallen boom bij de start van missie 4.", "success-image")}
             <p>STATION STANDBY. Je staat op de kruising. Tijd voor de ultieme blinde beproeving richting het hek.</p>
             <div class="task-block">
               <h2>Buddy-instructie</h2>
@@ -989,6 +990,13 @@
             ${textInputMarkup("plaque-input", "Tekst op het gele plaatje", PLAQUE_TEXT, "exacte tekst")}
             <button class="btn" type="submit">CONTROLEER RAPPORTAGE</button>
           </form>
+        ` : state.plaqueStep === "proceed" ? `
+          <p class="kicker">FASE 6</p>
+          <h1 id="fence-title">Onderzoek Bevestigd</h1>
+          <p>Plek correct herkend. Neem vooral de geschreven instructies goed in je op. Vervolg daarna het pad tot je een wandelpaaltje tegenkomt.</p>
+          <div class="button-stack">
+            <button class="btn" type="button" data-action="at-route-post">IK STA BIJ HET WANDELPAALTJE</button>
+          </div>
         ` : `
           <p class="kicker">FASE 6</p>
           <h1 id="fence-title">Onderzoek Je Plek</h1>
@@ -996,11 +1004,12 @@
           <p>Onderzoek je plek nauwkeurig en let vooral op geschreven instructies. Een commando moet feilloos en secuur verslag kunnen uitbrengen aan het hoofdkwartier, ook als de opdracht pas later duidelijk wordt.</p>
           <div class="task-block">
             <h2>Opdracht</h2>
-            <p>Neem vooral de geschreven instructies goed in je op. Vervolg daarna het pad tot je een wandelpaaltje tegenkomt.</p>
+            <p>Beschrijf deze plek in 1 woord.</p>
           </div>
-          <div class="button-stack">
-            <button class="btn" type="button" data-action="at-route-post">IK STA BIJ HET WANDELPAALTJE</button>
-          </div>
+          <form class="answer-form" data-action="place-answer">
+            ${textInputMarkup("place-input", "Plek in 1 woord", "bankje", "1 woord")}
+            <button class="btn" type="submit">BEVESTIG PLEK</button>
+          </form>
         `;
       const content = state.fenceStep === "report" ? reportContent : state.fenceStep === "ready" ? `
         <p class="kicker">FASE 6</p>
@@ -1059,11 +1068,11 @@
           <div class="screen-frame">
             <div class="confetti-line">* * * * * * *</div>
             <p class="status-stamp">Verjaardagsrapport</p>
-            <h1 id="complete-title">Kelin, Van Harte Gefeliciteerd!</h1>
+            <h1 id="complete-title">Kaylin, Van Harte Gefeliciteerd!</h1>
             <div class="final-block">
               <p>Wacht eens even... We zijn toch niet gek?! Waarom zou je jezelf dit in vredesnaam aandoen op je verjaardag? Vinden we dat nou wel erg leuk en wat hebben we er eigenlijk aan?</p>
               <p>Nee hoor! Hiermee hopen we dat je inziet: marinier zijn... Ach, waarom zouden we onszelf dat aandoen, terwijl we lekker thuis aan een gebakje kunnen zitten en verjaardag kunnen vieren? Kijken hoe anderen zo gek zijn om marinier te willen worden in Kamp van Koningsbrugge is een veel betere strategie in het leven!</p>
-              <p><strong>KELIN, VAN HARTE GEFELICITEERD MET JE VERJAARDAG!</strong></p>
+              <p><strong>KAYLIN, VAN HARTE GEFELICITEERD MET JE VERJAARDAG!</strong></p>
               <p>Ik hoop dat je dit cadeautje vermakelijk vond. Je mag nu heel comfortabel, zonder omwegen, op een heerlijk pad, zonder te tellen, zonder na te denken en zonder kompas... gewoon je eigen vertrouwde weg terugkiezen naar de taart!</p>
               <p>Tactical Commando Eindtijd:</p>
               <span class="final-time">${state.finalTime}</span>
@@ -1138,7 +1147,7 @@
       state.tunnelStep = "stones";
       state.finaleStep = "choices";
       state.fenceStep = "march";
-      state.plaqueStep = "observe";
+      state.plaqueStep = "describe";
       state.fenceHint = false;
       state.missionOneStep = "circumference";
       state.missionOneCircumference = null;
@@ -1274,6 +1283,34 @@
       }
 
       return { lat: parts[0], lng: parts[1] };
+    }
+
+    function normalizeAnswer(value) {
+      return value
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, " ");
+    }
+
+    function submitPlaceAnswer() {
+      const input = document.getElementById("place-input");
+      const value = input ? normalizeAnswer(input.value) : "";
+      const validAnswers = missionData.answers.benchSynonyms.map(normalizeAnswer);
+
+      if (!validAnswers.includes(value)) {
+        punishWrongAnswer(missionData.copy.messages.placeWrong);
+        if (input) {
+          input.focus();
+        }
+        return;
+      }
+
+      hideFlash();
+      state.plaqueStep = "proceed";
+      render();
+      focusApp();
     }
 
     function submitGpsAnswer() {
@@ -1422,7 +1459,7 @@
 
       if (action === "at-bench") {
         state.fenceStep = "report";
-        state.plaqueStep = "observe";
+        state.plaqueStep = "describe";
         render();
         focusApp();
       }
@@ -1458,6 +1495,11 @@
       const plaqueForm = event.target.closest("[data-action='plaque-answer']");
       if (plaqueForm) {
         submitPlaqueAnswer();
+      }
+
+      const placeForm = event.target.closest("[data-action='place-answer']");
+      if (placeForm) {
+        submitPlaceAnswer();
       }
 
       const finaleStepForm = event.target.closest("[data-action='finale-step-log']");
