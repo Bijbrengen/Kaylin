@@ -500,6 +500,7 @@
     const app = document.getElementById("app");
     const timerDisplay = document.getElementById("timer");
     const flashBanner = document.getElementById("flash");
+    const isTrainerMode = new URLSearchParams(window.location.search).get("role") === "trainer";
 
     const PURPLE_POST_TARGET = 3;
     const GPS_TARGET = {
@@ -523,9 +524,9 @@
         image: "photo/1_uitdaging_dikke_boom.jpg",
         imageAlt: "Monumentale dikke boom op Landgoed de Vossenberg.",
         briefing: "Vanaf het startpunt navigeer je 72 meter in een kompashoek van 302&deg;. Je treft hier een levende, monumentale woudreus aan. De gemeente Midden-Drenthe handhaaft een kapverbod voor bomen met een diameter van 40 cm of meer op een hoogte van 1,30 meter.",
-        task: "Meet de omtrek van de stam op exact 1,30 meter hoogte met je meetlint. Voer daarna de gemeten omtrek in hele centimeters in.",
+        task: "Bepaal de omtrek van de stam op exact 1,30 meter hoogte. Voer daarna de omtrek in hele centimeters in.",
         label: "Gemeten omtrek in hele centimeters",
-        placeholder: "omtrek",
+        placeholder: "265",
         success: "Gefeliciteerd! Deze reus heeft een dikte van ruim 84 cm en is absoluut beschermd!",
         nextLabel: "PROCEED TO INTEL PACKET 2",
         validate: value => value >= 260 && value <= 270
@@ -645,7 +646,11 @@
       showFlash(message);
     }
 
-    function integerInputMarkup(id, label, placeholder) {
+    function trainerPlaceholder(value, fallback = "voer antwoord in") {
+      return isTrainerMode ? value : fallback;
+    }
+
+    function integerInputMarkup(id, label, placeholder, fallback = "voer getal in") {
       return `
         <div class="input-row">
           <label class="field-label" for="${id}">${label}</label>
@@ -655,14 +660,14 @@
             inputmode="numeric"
             pattern="[0-9]*"
             autocomplete="off"
-            placeholder="${placeholder}"
+            placeholder="${trainerPlaceholder(placeholder, fallback)}"
             aria-label="${label}"
           >
         </div>
       `;
     }
 
-    function textInputMarkup(id, label, placeholder) {
+    function textInputMarkup(id, label, placeholder, fallback = "voer waarde in") {
       return `
         <div class="input-row">
           <label class="field-label" for="${id}">${label}</label>
@@ -670,7 +675,7 @@
             id="${id}"
             type="text"
             autocomplete="off"
-            placeholder="${placeholder}"
+            placeholder="${trainerPlaceholder(placeholder, fallback)}"
             aria-label="${label}"
           >
         </div>
@@ -729,9 +734,10 @@
         : mission.task;
       const fieldLabel = isMissionOneDiameter ? "Diameter in hele centimeters" : mission.label;
       const fieldPlaceholder = isMissionOneDiameter ? "84" : mission.placeholder;
+      const fieldPlaceholderFallback = isMissionOneDiameter ? "diameter" : state.mission === 1 ? "omtrek" : "antwoord";
       const submitLabel = isMissionOneDiameter ? "BEVESTIG DIAMETER" : "BEVESTIG ANTWOORD";
       const hintSuggestion = state.mission === 1
-        ? `<p class="hint-suggestion">Suggestie: kompas, richtinggevoel en meters vreten. Zorg dat je een kompas en een meetlint in je Tactical Toolbox hebt zitten.</p>`
+        ? `<p class="hint-suggestion">Suggestie: kompas, richtinggevoel en meters vreten. Er ligt een meetlint in de kapschuur.</p>`
         : "";
       const hintMarkup = state.hints[state.mission] ? `
         ${imageMarkup(mission.image, mission.imageAlt)}
@@ -743,7 +749,7 @@
           <div class="screen-frame">
             <p class="kicker">${mission.tag}</p>
             <h1 id="mission-title">${mission.title}</h1>
-            ${mission.coords ? `<div class="coords">COORDS: ${mission.coords}</div>` : ""}
+            ${isTrainerMode && mission.coords ? `<div class="coords">COORDS: ${mission.coords}</div>` : ""}
             <p>${mission.briefing}</p>
 
             <div class="task-block">
@@ -757,7 +763,7 @@
             </div>
 
             <form class="answer-form" data-action="answer">
-              ${integerInputMarkup("answer-input", fieldLabel, fieldPlaceholder)}
+              ${integerInputMarkup("answer-input", fieldLabel, fieldPlaceholder, fieldPlaceholderFallback)}
               <button class="btn" type="submit">${submitLabel}</button>
             </form>
           </div>
@@ -807,7 +813,7 @@
         <h1 id="tunnel-title">Houd Halt!</h1>
         <p>Je hebt gefocust op de grond om de stenen te vinden, maar heb je om je heen gekeken? Hoeveel paarse routepaaltjes ben je zojuist gepasseerd tussen de hanger en deze stenen?</p>
         <form class="answer-form" data-action="tunnel-answer">
-          ${integerInputMarkup("purple-posts", "Aantal paarse routepaaltjes", "0")}
+          ${integerInputMarkup("purple-posts", "Aantal paarse routepaaltjes", String(PURPLE_POST_TARGET), "aantal")}
           <button class="btn" type="submit">RAPPORTEER AANTAL</button>
         </form>
       ` : `
@@ -842,7 +848,7 @@
               <p>De volgende opdracht is simpel: volg vanaf hier het pad en loop zo ver mogelijk door zonder ergens af te slaan. Houd halt op de plek waar je de allereerste hindernis tegenkomt waarbij je onmogelijk nog recht door kunt lopen. Voer op die plek de exacte GPS-co&ouml;rdinaten van je telefoon in om de finale te ontgrendelen.</p>
             </div>
             <form class="answer-form" data-action="gps-answer">
-              ${textInputMarkup("gps-input", "GPS-co&ouml;rdinaten", "52.816668, 6.543542")}
+              ${textInputMarkup("gps-input", "GPS-co&ouml;rdinaten", "52.816668, 6.543542", "latitude, longitude")}
               <button class="btn" type="submit">ONTGRENDEL DE BLINDE MARS</button>
             </form>
           </div>
@@ -855,7 +861,7 @@
         <div class="step-panel">
           <p>Eigenlijk zou je nu helemaal terug moeten naar de kruising van de instructeurs, maar vooruit: houd je blinddoek om en je ogen dicht. Hoeveel stappen doe je er nog extra vooruit?</p>
           <form class="answer-form" data-action="finale-step-log">
-            ${integerInputMarkup("extra-steps", "Extra stappen vooruit", "3")}
+            ${integerInputMarkup("extra-steps", "Extra stappen vooruit", "3", "stappen")}
             <button class="btn" type="submit">STAPPEN TOEGEVOEGD</button>
           </form>
         </div>
@@ -863,7 +869,7 @@
         <div class="step-panel">
           <p>Te ver, cursist! Je bent het doel voorbijgeschoten. Ogen dicht.</p>
           <form class="answer-form" data-action="finale-step-log">
-            ${integerInputMarkup("back-steps", "Stappen aftrekken", "2")}
+            ${integerInputMarkup("back-steps", "Stappen aftrekken", "2", "stappen")}
             <button class="btn" type="submit">STAPPEN GECORRIGEERD</button>
           </form>
         </div>
