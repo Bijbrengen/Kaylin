@@ -594,6 +594,9 @@
       flashId: null,
       autoAdvanceId: null,
       nudgeId: null,
+      spaRevealId: null,
+      spaRevealReady: false,
+      spaRevealed: false,
       tunnelStep: "stones",
       tunnelNudge: false,
       finaleStep: "choices",
@@ -652,6 +655,13 @@
       if (state.nudgeId) {
         window.clearTimeout(state.nudgeId);
         state.nudgeId = null;
+      }
+    }
+
+    function clearSpaRevealTimer() {
+      if (state.spaRevealId) {
+        window.clearTimeout(state.spaRevealId);
+        state.spaRevealId = null;
       }
     }
 
@@ -1128,6 +1138,25 @@
 
     function renderComplete() {
       setCelebrationMode(true);
+      const giftContent = state.spaRevealed ? `
+              <p>Quinn vindt dat jij veel beter een spa mag ondergaan. Dat is zijn cadeau aan jou. Als hij weer terug is van vakantie neemt hij je mee.</p>
+              ${imageGridMarkup([
+                { src: "photo/web/spa/11_private_spa_cottage.jpg", alt: "Private spa cottage." },
+                { src: "photo/web/spa/2025_patince_spa.jpg", alt: "Spa met zwembad." },
+                { src: "photo/web/spa/spa_mood.jpg", alt: "Ontspannende spa-behandeling." }
+              ])}
+              <p>Voor nu mag jij al het gemak gebruiken: de fiets die er staat, het lekkers en het drinken. Wij moeten maar verder bikkelen. Jij bent immers jarig.</p>
+      ` : `
+              <p>Quinn vindt dat jij iets veel beters verdient.</p>
+              <p class="muted">Denk maar even na wat dat dan zou kunnen zijn...</p>
+              ${state.spaRevealReady ? `
+                <div class="button-stack">
+                  <button class="btn" type="button" data-action="reveal-spa">ONTHUL HET ECHTE CADEAU</button>
+                </div>
+              ` : `
+                <div class="auto-advance">CADEAU-ONTHULLING WORDT ONTGRENDELD...</div>
+              `}
+      `;
       app.innerHTML = `
         <section class="screen" aria-labelledby="complete-title">
           <div class="screen-frame">
@@ -1138,19 +1167,21 @@
               <p>Wacht eens even... We zijn toch niet gek?! Waarom zou je jezelf dit in vredesnaam aandoen op je verjaardag? Vinden we dat nou wel erg leuk en wat hebben we er eigenlijk aan?</p>
               <p>Nee hoor! We hebben net besloten dat Kaylin zichzelf vandaag niet verder hoeft te martelen met afzien, modder, prikkeldraad en militaire ellende. Kijken hoe anderen zo gek zijn om marinier te willen worden in Kamp van Koningsbrugge is al ruig genoeg.</p>
               <p><strong>KAYLIN, VAN HARTE GEFELICITEERD MET JE VERJAARDAG!</strong></p>
-              <p>Quinn vindt dat jij veel beter een spa mag ondergaan. Dat is zijn cadeau aan jou. Als hij weer terug is van vakantie neemt hij je mee.</p>
-              ${imageGridMarkup([
-                { src: "photo/web/spa/11_private_spa_cottage.jpg", alt: "Private spa cottage." },
-                { src: "photo/web/spa/2025_patince_spa.jpg", alt: "Spa met zwembad." },
-                { src: "photo/web/spa/spa_mood.jpg", alt: "Ontspannende spa-behandeling." }
-              ])}
-              <p>Voor nu mag jij al het gemak gebruiken: de fiets die er staat, het lekkers en het drinken. Wij moeten maar verder bikkelen. Jij bent immers jarig.</p>
+              ${giftContent}
               <p>Tactical Commando Eindtijd:</p>
               <span class="final-time">${state.finalTime}</span>
             </div>
           </div>
         </section>
       `;
+
+      if (!state.spaRevealed && !state.spaRevealReady && !state.spaRevealId) {
+        state.spaRevealId = window.setTimeout(() => {
+          state.spaRevealReady = true;
+          state.spaRevealId = null;
+          render();
+        }, 30000);
+      }
     }
 
     function render() {
@@ -1158,6 +1189,9 @@
       setCelebrationMode(state.view === "complete");
       if (!(state.view === "tunnel" && state.tunnelStep === "question")) {
         clearNudge();
+      }
+      if (state.view !== "complete") {
+        clearSpaRevealTimer();
       }
 
       if (state.view === "prebriefing") {
@@ -1220,6 +1254,9 @@
       state.elapsed = 0;
       state.tunnelStep = "stones";
       state.tunnelNudge = false;
+      state.spaRevealReady = false;
+      state.spaRevealed = false;
+      clearSpaRevealTimer();
       state.finaleStep = "choices";
       state.fenceStep = "march";
       state.plaqueStep = "describe";
@@ -1570,6 +1607,13 @@
 
       if (action === "send-report") {
         sendReportToHeadquarters();
+      }
+
+      if (action === "reveal-spa") {
+        state.spaRevealed = true;
+        clearSpaRevealTimer();
+        render();
+        focusApp();
       }
     });
 
