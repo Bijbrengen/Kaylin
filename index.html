@@ -369,6 +369,14 @@
       text-align: center;
     }
 
+    .final-time.danger-time {
+      padding: 10px;
+      border: 3px solid var(--danger);
+      background: rgba(95, 0, 0, 0.72);
+      color: #fff;
+      box-shadow: 0 0 0 4px rgba(255, 43, 43, 0.18);
+    }
+
     .choice-grid {
       display: grid;
       gap: 12px;
@@ -1312,6 +1320,26 @@
       `;
     }
 
+    function renderFinalScore() {
+      app.innerHTML = `
+        <section class="screen" aria-labelledby="final-score-title">
+          <div class="screen-frame">
+            <p class="kicker">EINDSTAND SPEURTOCHT</p>
+            <h1 id="final-score-title">Tijdrapport Onder Vuur</h1>
+            <p>GPS-rapport ontvangen. De speurtocht is officieel voltooid, maar het hoofdkwartier is nog niet onder de indruk.</p>
+            <div class="final-block">
+              <p><strong>Tactical Commando Eindtijd:</strong></p>
+              <span class="final-time danger-time">${state.finalTime}</span>
+            </div>
+            ${commandoStandMarkup("final")}
+            <div class="button-stack">
+              <button class="btn danger" type="button" data-action="recovery-chance">KANS OP HERSTEL</button>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
     function renderComplete() {
       setCelebrationMode(true);
       const giftContent = state.spaRevealed ? `
@@ -1346,7 +1374,6 @@
               ${giftContent}
               <p>Tactical Commando Eindtijd:</p>
               <span class="final-time">${state.finalTime}</span>
-              ${commandoStandMarkup("final")}
             </div>
           </div>
         </section>
@@ -1403,6 +1430,11 @@
 
       if (state.view === "gps") {
         renderGps();
+        return;
+      }
+
+      if (state.view === "finalScore") {
+        renderFinalScore();
         return;
       }
 
@@ -1678,7 +1710,16 @@
         return;
       }
 
-      startFalseMissionTwist();
+      showFinalScore();
+    }
+
+    function showFinalScore() {
+      hideFlash();
+      setRunning(false);
+      state.finalTime = formatTime(state.elapsed);
+      state.view = "finalScore";
+      render();
+      focusApp();
     }
 
     function logFinaleSteps() {
@@ -1726,7 +1767,6 @@
     function startFalseMissionTwist() {
       hideFlash();
       setRunning(false);
-      state.finalTime = formatTime(state.elapsed);
       state.view = "falseMission";
       render();
       focusApp();
@@ -1844,6 +1884,10 @@
         clearSpaRevealTimer();
         render();
         focusApp();
+      }
+
+      if (action === "recovery-chance") {
+        startFalseMissionTwist();
       }
     });
 

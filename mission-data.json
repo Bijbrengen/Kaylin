@@ -275,11 +275,11 @@
         "image": "photo/Commando_Zuko.webp",
         "comment": "Zuko had de routepaaltjes in {targetTime} gevonden. Dat zegt iets, cursist. Niet per se iets fijns."
       },
-      "final": {
-        "name": "Hilde",
-        "image": "photo/Commando_Hilde.webp",
-        "comment": "Zelfs Hilde had deze hele operatie in {targetTime} kunnen afronden. En dan had ze waarschijnlijk nog gevraagd waarom iedereen zo moeilijk deed."
-      }
+    "final": {
+      "name": "Hilde",
+      "image": "photo/Commando_Hilde.webp",
+      "comment": "Zelfs Hilde had deze hele operatie in {targetTime} kunnen afronden. Dat betekent dat een vrouw van 90 je op prestatie gewoon dubbel pakt, cursist. En dan had ze waarschijnlijk nog gevraagd waarom iedereen zo moeilijk deed."
     }
   }
+}
 }
