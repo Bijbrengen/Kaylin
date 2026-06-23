@@ -1040,7 +1040,9 @@
       const successImage = mission.successImage || mission.image;
       const successImageAlt = mission.successImageAlt || mission.imageAlt;
       const buttonMarkup = isMissionThree ? `
-        <div class="auto-advance">BLINDE MARS WORDT GELADEN...</div>
+        <div class="button-stack">
+          <button class="btn" type="button" data-action="start-calibration">START OEFENFASE VOOR DE BLINDE MARS</button>
+        </div>
       ` : `
         <div class="button-stack">
           <button class="btn" type="button" data-action="proceed">${mission.nextLabel}</button>
@@ -1060,16 +1062,6 @@
         </section>
       `;
 
-      if (isMissionThree) {
-        clearAutoAdvance();
-        state.autoAdvanceId = window.setTimeout(() => {
-          setRunning(false);
-          state.view = "calibration";
-          state.completedMission = null;
-          render();
-          focusApp();
-        }, 4300);
-      }
     }
 
     function renderCalibration() {
@@ -1508,6 +1500,15 @@
       focusApp();
     }
 
+    function startCalibrationFromSuccess() {
+      hideFlash();
+      setRunning(false);
+      state.view = "calibration";
+      state.completedMission = null;
+      render();
+      focusApp();
+    }
+
     function submitAnswer() {
       const input = document.getElementById("answer-input");
       const rawValue = input ? input.value.trim() : "";
@@ -1776,6 +1777,10 @@
 
       if (action === "proceed") {
         proceedFromSuccess();
+      }
+
+      if (action === "start-calibration") {
+        startCalibrationFromSuccess();
       }
 
       if (action === "unlock-finale") {
