@@ -400,6 +400,15 @@
       text-transform: uppercase;
     }
 
+    .countdown {
+      display: block;
+      margin-top: 8px;
+      color: var(--line);
+      font-family: "Courier New", monospace;
+      font-size: 1.65rem;
+      font-weight: 900;
+    }
+
     .image-missing {
       display: none;
       margin: 10px 0 0;
@@ -432,7 +441,7 @@
       display: block;
       width: 100%;
       max-height: 320px;
-      object-fit: cover;
+      object-fit: contain;
       border: 1px solid var(--line-soft);
       background: #050805;
     }
@@ -699,6 +708,7 @@
       spaRevealId: null,
       spaRevealReady: false,
       spaRevealed: false,
+      spaRevealRemaining: 30,
       introStage: "briefing",
       tunnelStep: "stones",
       tunnelNudge: false,
@@ -1358,7 +1368,10 @@
                   <button class="btn" type="button" data-action="reveal-spa">ONTHUL HET ECHTE CADEAU</button>
                 </div>
               ` : `
-                <div class="auto-advance">CADEAU-ONTHULLING WORDT ONTGRENDELD...</div>
+                <div class="auto-advance">
+                  CADEAU-ONTHULLING WORDT ONTGRENDELD...
+                  <span class="countdown">${formatTime(state.spaRevealRemaining)}</span>
+                </div>
               `}
       `;
       app.innerHTML = `
@@ -1381,10 +1394,14 @@
 
       if (!state.spaRevealed && !state.spaRevealReady && !state.spaRevealId) {
         state.spaRevealId = window.setTimeout(() => {
-          state.spaRevealReady = true;
+          state.spaRevealRemaining -= 1;
+          if (state.spaRevealRemaining <= 0) {
+            state.spaRevealRemaining = 0;
+            state.spaRevealReady = true;
+          }
           state.spaRevealId = null;
           render();
-        }, 30000);
+        }, 1000);
       }
     }
 
@@ -1492,6 +1509,7 @@
       state.tunnelNudge = false;
       state.spaRevealReady = false;
       state.spaRevealed = false;
+      state.spaRevealRemaining = 30;
       clearSpaRevealTimer();
       state.finaleStep = "choices";
       state.fenceStep = "march";
@@ -1771,6 +1789,7 @@
       render();
       focusApp();
       state.autoAdvanceId = window.setTimeout(() => {
+        state.spaRevealRemaining = 30;
         state.view = "complete";
         render();
         focusApp();

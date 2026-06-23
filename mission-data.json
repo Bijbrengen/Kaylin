@@ -255,11 +255,11 @@
         "image": "photo/Commando_Bas.webp",
         "comment": "Bas had hier {targetTime} voor nodig gehad. Niet omdat hij haast heeft, maar omdat wachten op jouw tempo fysiek pijn doet."
       },
-      "mission3": {
-        "name": "Carmen",
-        "image": "photo/Commando_Carmen.webp",
-        "comment": "Carmen had dit in {targetTime} afgewerkt en daarna gevraagd waarom de warming-up zo lang duurde."
-      },
+    "mission3": {
+      "name": "Carmen",
+      "image": "photo/Commando_Carmen.webp",
+      "comment": "Carmen had dit in {targetTime} afgewerkt en ondertussen, al wachtend op jou, vast het gras gemaaid."
+    },
       "fence": {
         "name": "Rob",
         "image": "photo/Commando_Rob.webp",
