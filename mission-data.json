@@ -26,28 +26,28 @@
       "label": "Missie 3 / gevallen boom",
       "lat": 52.816668,
       "lng": 6.545142,
-      "source": "photo/4_coords_gevallen_boom.jpg"
+      "source": "photo/4_coords_gevallen_boom.webp"
     },
     {
       "id": "mission_3_6_kruising",
       "label": "Kruising voor blinde mars",
       "lat": 52.817024,
       "lng": 6.545692,
-      "source": "photo/5_coords_wandelpad_lengte.jpg"
+      "source": "photo/5_coords_wandelpad_lengte.webp"
     },
     {
       "id": "mission_4_hek",
       "label": "Hek",
       "lat": 52.818072,
       "lng": 6.549939,
-      "source": "photo/6_coords_hek.jpg"
+      "source": "photo/6_coords_hek.webp"
     },
     {
       "id": "mission_5_keien",
       "label": "Keien",
       "lat": 52.821173,
       "lng": 6.544594,
-      "source": "photo/8_coords_keien.jpg"
+      "source": "photo/8_coords_keien.webp"
     },
     {
       "id": "mission_6_kanaal",
@@ -68,45 +68,49 @@
   ],
   "media": {
     "phase1Briefing": [
-      "photo/1_uitdaging_oesterzwammen.jpg",
-      "photo/web/intro_speurtocht.jpg",
-      "photo/web/intro_speurtocht_2.jpg",
-      "photo/web/intro_speurtocht_3.jpg"
+      "photo/1_uitdaging_oesterzwammen.webp",
+      "photo/intro_speurtocht.webp",
+      "photo/intro_speurtocht_2.webp",
+      "photo/intro_speurtocht_3.webp"
     ],
     "phase4DangerousHanger": [
-      "photo/4_uitdaging_gevallen_boom.jpg",
-      "photo/web/3_6_oefenen_richting_en_afstand.jpg"
+      "photo/4_uitdaging_gevallen_boom.webp",
+      "photo/3_6_oefenen_richting_en_afstand.webp"
     ],
     "phase5Practice": [
-      "photo/web/3_6_oefenen_richting_en_afstand.jpg",
-      "photo/5_uitdaging_wandelpad_lengte.jpg"
+      "photo/3_6_oefenen_richting_en_afstand.webp",
+      "photo/5_uitdaging_wandelpad_lengte.webp"
     ],
     "phase6BlindMarch": [
-      "photo/web/4a_pad_naar_hek.jpg",
-      "photo/web/4b_pad_naar_hek.jpg",
-      "photo/web/4d_hek.jpg",
-      "photo/web/4e_hek.jpg"
+      "photo/4a_pad_naar_hek.webp",
+      "photo/4b_pad_naar_hek.webp",
+      "photo/4c_pad_naar_hek.webp",
+      "photo/4d_hek.webp",
+      "photo/4e_hek.webp"
     ],
     "phase7WalkingPath": [
-      "photo/web/5c_pad_naar_bankje.jpg"
+      "photo/5c_pad_naar_bankje.webp"
     ],
     "phase8Bench": [
-      "photo/web/5b_bankje.jpg",
-      "photo/web/img_3292.jpg"
+      "photo/5b_bankje.webp",
+      "photo/img_3292.webp"
     ],
     "phase9Stones": [
-      "photo/web/5a_pad_naar_keien.jpg",
-      "photo/8_uitdaging_keien.jpg"
+      "photo/5a_pad_naar_keien.webp",
+      "photo/8_uitdaging_keien.webp"
     ],
     "birthdaySpaGift": [
-      "photo/web/spa/11_private_spa_cottage.jpg",
-      "photo/web/spa/2025_patince_spa.jpg",
-      "photo/web/spa/spa_mood.jpg"
+      "photo/11_private_spa_cottage.webp",
+      "photo/2025_patince_spa.webp",
+      "photo/spa_mood.webp"
     ]
   },
   "answers": {
     "mission1CircumferenceCm": 265,
-    "mission1DiameterCmRange": [80, 89],
+    "mission1DiameterCmRange": [
+      80,
+      89
+    ],
     "mission2HeightMeters": 7,
     "mission3Branches": 54,
     "purplePostsFromBenchToStones": 5,
@@ -162,6 +166,87 @@
       "plaqueWrong": "COMMANDO FAAL! Rapportage onnauwkeurig. Een marinier mist geen letters. Kijk opnieuw en zorg dat de lettervolgorde klopt!",
       "fenceHintPenalty": "Zwak, cursist! +2 strafminuten toegevoegd omdat je het patroon langs het wandelpad niet zelf spotte.",
       "purplePostNudge": "Je gaat toch niet helemaal terug lopen? Dat kost je zo een kwartier. Gok desnoods een paar keer: dat kost maar 2 strafminuten per poging. Een marinier is slim met zijn inspanning; domme kracht is alleen nuttig als je brein ook aan staat."
+    }
+  },
+  "intro": {
+    "header": "MISSIE KAMP VOSSENBERG: OPERATION BIRTHDAY",
+    "stage1": {
+      "kicker": "TACTISCHE VERJAARDAGSLANCERING",
+      "paragraphs": [
+        "<strong>GEFELICITEERD MET JE VERJAARDAG, KAYLIN!</strong>",
+        "We weten allemaal dat je intens kunt genieten van het kijken naar spannende series op de bank. Een van die absolute favorieten is <em>Kamp van Koningsbrugge</em> &mdash; de ultieme test waarin gewone burgers worden blootgesteld aan de loodzware, meedogenloze selectieopleiding van de Special Forces. Kijken vanaf de bank is comfortabel... maar vandaag breekt er een nieuw hoofdstuk aan.",
+        "Vandaag ga jij dit niet vanaf de bank bekijken. <strong>Jij gaat het live meemaken.</strong>",
+        "De cadeaus die je zojuist hebt gekregen &mdash; jouw offici&euml;le commando-jas (<code>image_8.png</code>) en je tactische camouflage-hoofdbedekking (<code>image_9.png</code>) &mdash; zijn niet voor de show. Dit is de offici&euml;le uitrusting die je hebt gekregen van de opleidingsstaf. Je hebt ze vanaf dit moment hard nodig, want jouw eigen Opleiding tot Commando start NU, hier op Landgoed de Vossenberg!"
+      ],
+      "images": [
+        {
+          "src": "photo/intro_shirt_cursist.webp",
+          "alt": "Officieel commando-shirt voor Kaylin."
+        },
+        {
+          "src": "photo/intro_pet_cursist.webp",
+          "alt": "Tactische camouflage-hoofdbedekking voor Kaylin."
+        },
+        {
+          "src": "photo/intro_kompas.webp",
+          "alt": "Kompas voor de tactische uitrusting."
+        }
+      ],
+      "button": "ACCEPTEER DE UITDAGING & STEL PLUNJEBAAL SAMEN"
+    },
+    "stage2": {
+      "kicker": "PLUNJEBAALCONTROLE",
+      "title": "Stel Je Plunjebaal Samen",
+      "paragraphs": [
+        "Een goede marinier gaat nooit onvoorbereid op pad. Je hebt je offici&euml;le legervest en camo-hoed al aan. Maar een verkenningstocht vereist een slim samengestelde rugzak. Los van de spullen die je al van de opleiding hebt gekregen, mag je nu je eigen plunjebaal gaan vullen.",
+        "Kies zorgvuldig wat je denkt nodig te hebben onderweg om goed beslagen ten ijs te komen!"
+      ],
+      "warning": "NEGATIEF CURSIST! Je vergeet cruciale uitrusting om je missie te volbrengen. Pak je plunjezak fatsoenlijk in!",
+      "button": "RUGZAK INGEPAKT. NAAR HET STARTPUNT!",
+      "items": [
+        {
+          "id": "meetlint",
+          "label": "Meetlint",
+          "detail": "Cruciaal voor omtrekmetingen",
+          "required": true
+        },
+        {
+          "id": "kompas",
+          "label": "Tactisch kompas / Telefoon",
+          "detail": "Voor koersbepaling",
+          "required": true
+        },
+        {
+          "id": "penpapier",
+          "label": "Pen en papier",
+          "detail": "Voor het loggen van data",
+          "required": false
+        },
+        {
+          "id": "water",
+          "label": "Fles water",
+          "detail": "Hydratatie tijdens de mars",
+          "required": false
+        },
+        {
+          "id": "doorzetten",
+          "label": "Een flinke dosis doorzettingsvermogen",
+          "detail": "Onmisbaar",
+          "required": false
+        },
+        {
+          "id": "snack",
+          "label": "Noodrantsoen",
+          "detail": "Voor als de opleidingsstaf dramatisch doet",
+          "required": false
+        },
+        {
+          "id": "glimlach",
+          "label": "Verjaardagsgrijns",
+          "detail": "Toegestaan, maar niet te zelfverzekerd kijken",
+          "required": false
+        }
+      ]
     }
   }
 }

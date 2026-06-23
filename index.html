@@ -411,6 +411,64 @@
       background: rgba(255, 102, 0, 0.1);
     }
 
+    code {
+      padding: 1px 4px;
+      border: 1px solid var(--line-soft);
+      background: rgba(0, 0, 0, 0.32);
+      color: var(--line);
+      font-family: "Courier New", monospace;
+      font-size: 0.9em;
+    }
+
+    .intro-bulletin {
+      display: grid;
+      gap: 14px;
+    }
+
+    .pack-list {
+      display: grid;
+      gap: 10px;
+      margin: 18px 0 0;
+    }
+
+    .check-item {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid var(--line-soft);
+      background: rgba(0, 0, 0, 0.28);
+    }
+
+    .check-item input {
+      width: 24px;
+      height: 24px;
+      min-height: 24px;
+      margin: 1px 0 0;
+      border: 2px solid var(--line);
+      border-radius: 3px;
+      accent-color: var(--orange);
+      appearance: auto;
+      -webkit-appearance: checkbox;
+    }
+
+    .check-item strong {
+      display: block;
+      color: #fff;
+      font-size: 1rem;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    .check-item small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.3;
+    }
+
     body.celebration {
       --bg: #fff8e6;
       --panel: rgba(255, 255, 255, 0.9);
@@ -543,7 +601,7 @@
         tag: "FASE 2",
         title: "DE DIKKE BOOM",
         coords: TRAINER_COORDS.mission1,
-        image: "photo/2_uitdaging_dikke_boom.jpg",
+        image: "photo/2_uitdaging_dikke_boom.webp",
         imageAlt: "Monumentale dikke boom op Landgoed de Vossenberg.",
         briefing: "Vanaf het startpunt navigeer je 72 meter in een kompashoek van 302&deg;. Je treft hier een levende, monumentale woudreus aan. De gemeente Midden-Drenthe handhaaft een kapverbod voor bomen met een diameter van 40 cm of meer op een hoogte van 1,30 meter.",
         task: "Bepaal de omtrek van de stam op exact 1,30 meter hoogte. Voer daarna de omtrek in hele centimeters in.",
@@ -557,7 +615,7 @@
         tag: "FASE 3",
         title: "DE DODE REUS",
         coords: "52.816415, 6.546675",
-        image: "photo/3_uitdaging_dode_boom.jpg",
+        image: "photo/3_uitdaging_dode_boom.webp",
         imageAlt: "Kale dode boomstam in het terrein.",
         briefing: "Vanaf de dikke boom volgt een tactische verplaatsing. Richting: EXACT 293 graden (West-Noordwest). Afstand: EXACT 63 meter. Gebruik je pacing (stappen tellen). Je stuit op een ge&iuml;soleerde, kale, dode boomstam.",
         task: "Bepaal de hoogte van deze dode boom. Hoe hoog is deze dode boom in hele meters?",
@@ -571,8 +629,8 @@
         tag: "FASE 4",
         title: "DE GEVAARLIJKE HANGER",
         coords: "52.816668, 6.545142",
-        image: "photo/4_uitdaging_gevallen_boom.jpg",
-        successImage: "photo/web/3_6_oefenen_richting_en_afstand.jpg",
+        image: "photo/4_uitdaging_gevallen_boom.webp",
+        successImage: "photo/3_6_oefenen_richting_en_afstand.webp",
         successImageAlt: "Pad vanaf de gevallen boom richting de kruising.",
         imageAlt: "Omgevallen boom die de doorgang blokkeert.",
         briefing: "Vanaf de dode reus volgt de eindspurt naar de gevaarlijke hanger. Richting: EXACT 281 graden (vrijwel pal West). Afstand: EXACT 107 meter. Pas op: hier ligt een gevaarlijke, omgevallen boom die de doorgang blokkeert.",
@@ -585,7 +643,7 @@
     };
 
     const state = {
-      view: "prebriefing",
+      view: "intro",
       mission: 1,
       completedMission: null,
       elapsed: 0,
@@ -597,6 +655,7 @@
       spaRevealId: null,
       spaRevealReady: false,
       spaRevealed: false,
+      introStage: "briefing",
       tunnelStep: "stones",
       tunnelNudge: false,
       finaleStep: "choices",
@@ -767,6 +826,60 @@
       document.body.classList.toggle("celebration", enabled);
     }
 
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function renderIntro() {
+      const intro = missionData.intro;
+      const isPackStage = state.introStage === "pack";
+
+      const content = isPackStage ? `
+        <p class="kicker">${intro.stage2.kicker}</p>
+        <h1 id="intro-title">${intro.stage2.title}</h1>
+        <div class="intro-bulletin">
+          ${intro.stage2.paragraphs.map(paragraph => `<p>${paragraph}</p>`).join("")}
+        </div>
+        <div class="pack-list" aria-label="Plunjebaal checklist">
+          ${intro.stage2.items.map(item => `
+            <label class="check-item" for="pack-${escapeHtml(item.id)}">
+              <input id="pack-${escapeHtml(item.id)}" type="checkbox" data-pack-required="${item.required ? "true" : "false"}">
+              <span>
+                <strong>${escapeHtml(item.label)}</strong>
+                <small>${escapeHtml(item.detail)}</small>
+              </span>
+            </label>
+          `).join("")}
+        </div>
+        <div class="button-stack">
+          <button class="btn" type="button" data-action="complete-pack">${intro.stage2.button}</button>
+        </div>
+      ` : `
+        <p class="kicker">${intro.stage1.kicker}</p>
+        <h1 id="intro-title">${intro.header}</h1>
+        <div class="intro-bulletin">
+          ${intro.stage1.paragraphs.map(paragraph => `<p>${paragraph}</p>`).join("")}
+        </div>
+        ${imageGridMarkup(intro.stage1.images)}
+        <div class="button-stack">
+          <button class="btn" type="button" data-action="intro-pack">${intro.stage1.button}</button>
+        </div>
+      `;
+
+      app.innerHTML = `
+        <section class="screen" aria-labelledby="intro-title">
+          <div class="screen-frame">
+            ${content}
+          </div>
+        </section>
+      `;
+    }
+
     function renderPrebriefing() {
       app.innerHTML = `
         <section class="screen" aria-labelledby="prebriefing-title">
@@ -776,12 +889,12 @@
             ${trainerCoordsMarkup("STARTPUNT", TRAINER_COORDS.start)}
             <p class="briefing-copy">Kaylin kijkt graag naar commando-training op tv. Dus wat geef je iemand die daarvan houdt? Geen gewone wandeling, maar een eigen training in de naaste omgeving: observeren, navigeren, rekenen, doorzetten en vooral niet te snel denken dat je klaar bent.</p>
             ${imageGridMarkup([
-              { src: "photo/web/intro_speurtocht.jpg", alt: "Introbeeld van de omgeving." },
-              { src: "photo/web/intro_speurtocht_2.jpg", alt: "Introbeeld van het landgoed." },
-              { src: "photo/web/intro_speurtocht_3.jpg", alt: "Introbeeld van het bos." }
+              { src: "photo/intro_speurtocht.webp", alt: "Introbeeld van de omgeving." },
+              { src: "photo/intro_speurtocht_2.webp", alt: "Introbeeld van het landgoed." },
+              { src: "photo/intro_speurtocht_3.webp", alt: "Introbeeld van het bos." }
             ])}
             <p class="briefing-copy">Als goede commando moet je in staat zijn dingen te onthouden van je omgeving. Een scherpe blik is het verschil tussen slagen en falen. Kijk goed naar de foto. Herken deze plek meteen. Ga zo snel mogelijk naar deze locatie toe op het landgoed. Pas als je er staat, druk je op de startknop.</p>
-            ${imageMarkup("photo/1_uitdaging_oesterzwammen.jpg", "Boomstronk met het oesterzwammenbriefje op het startpunt.", "success-image")}
+            ${imageMarkup("photo/1_uitdaging_oesterzwammen.webp", "Boomstronk met het oesterzwammenbriefje op het startpunt.", "success-image")}
             <div class="button-stack">
               <button class="btn" type="button" data-action="start">IK STA OP HET STARTPUNT (START DE OPLEIDING)</button>
             </div>
@@ -902,8 +1015,8 @@
             ${trainerCoordsMarkup("HEK", TRAINER_COORDS.fence)}
             ${trainerCoordsMarkup("DATA", "zie mission-data.json")}
             <p>Cursist, deze oefening telt niet mee voor je Tactical Time. Je mag nu controleren, leren en kalibreren voordat de blinddoek weer om gaat.</p>
-            ${imageMarkup("photo/web/3_6_oefenen_richting_en_afstand.jpg", "Oefenplek richting kruising.", "success-image")}
-            ${imageMarkup("photo/5_uitdaging_wandelpad_lengte.jpg", "Startplek van de blinde mars vanaf de kruising.", "success-image")}
+            ${imageMarkup("photo/3_6_oefenen_richting_en_afstand.webp", "Oefenplek richting kruising.", "success-image")}
+            ${imageMarkup("photo/5_uitdaging_wandelpad_lengte.webp", "Startplek van de blinde mars vanaf de kruising.", "success-image")}
             <div class="task-block">
               <h2>Oefening 1</h2>
               <p>Sta bij de gevallen boom en kijk richting de kruising van de weg waaraan de gevallen boom ligt. Schat eerst de richting ten opzichte van het Noorden. Check daarna met je kompas wat de echte hoek is.</p>
@@ -947,8 +1060,8 @@
         <h1 id="tunnel-title">Tunnelvisie Breken</h1>
         ${trainerCoordsMarkup("KEIEN", TRAINER_COORDS.stones)}
         <p>Loop door over het normale wandelpad. Let extreem goed op. Volg het pad tot je de stenen van de foto op je scherm ziet liggen. Maak als commando een identieke foto van deze stenen ter rapportage voor het intel-pakket.</p>
-        ${imageMarkup("photo/web/5a_pad_naar_keien.jpg", "Pad richting de keien.", "success-image")}
-        ${imageMarkup("photo/8_uitdaging_keien.jpg", "Stenen op het pad voor het intel-pakket.", "success-image")}
+        ${imageMarkup("photo/5a_pad_naar_keien.webp", "Pad richting de keien.", "success-image")}
+        ${imageMarkup("photo/8_uitdaging_keien.webp", "Stenen op het pad voor het intel-pakket.", "success-image")}
         <div class="button-stack">
           <button class="btn" type="button" data-action="stones-photo">IK STA BIJ DE STENEN EN HEB DE FOTO GEMAAKT</button>
         </div>
@@ -1020,10 +1133,11 @@
             ${trainerCoordsMarkup("HEK", TRAINER_COORDS.fence)}
             ${trainerCoordsMarkup("KRUISING NAAR HEK", `${CROSSING_TO_FENCE.distanceMeters} meter, ${CROSSING_TO_FENCE.bearingDegrees} graden`)}
             ${imageGridMarkup([
-              { src: "photo/web/4a_pad_naar_hek.jpg", alt: "Pad richting het hek." },
-              { src: "photo/web/4b_pad_naar_hek.jpg", alt: "Bospaadje richting het hek." },
-              { src: "photo/web/4d_hek.jpg", alt: "Het hek waar de blinde mars op uitkomt." },
-              { src: "photo/web/4e_hek.jpg", alt: "Close-up van het hek." }
+              { src: "photo/4a_pad_naar_hek.webp", alt: "Pad richting het hek." },
+              { src: "photo/4b_pad_naar_hek.webp", alt: "Bospaadje richting het hek." },
+              { src: "photo/4c_pad_naar_hek.webp", alt: "Vervolg van het pad richting het hek." },
+              { src: "photo/4d_hek.webp", alt: "Het hek waar de blinde mars op uitkomt." },
+              { src: "photo/4e_hek.webp", alt: "Close-up van het hek." }
             ])}
             <p>STATION STANDBY. Je staat op de kruising. Tijd voor de ultieme blinde beproeving richting het hek.</p>
             <div class="task-block">
@@ -1065,8 +1179,8 @@
           <h1 id="fence-title">Onderzoek Bevestigd</h1>
           <p>Plek correct herkend. Neem vooral de geschreven instructies goed in je op. Vervolg daarna het pad tot je een wandelpaaltje tegenkomt.</p>
           ${imageGridMarkup([
-            { src: "photo/web/5b_bankje.jpg", alt: "Houten rustplek op het pad." },
-            { src: "photo/web/img_3292.jpg", alt: "Dezelfde rustplek vanuit een andere hoek." }
+            { src: "photo/5b_bankje.webp", alt: "Houten rustplek op het pad." },
+            { src: "photo/img_3292.webp", alt: "Dezelfde rustplek vanuit een andere hoek." }
           ])}
           <div class="button-stack">
             <button class="btn" type="button" data-action="at-route-post">IK STA BIJ HET WANDELPAALTJE</button>
@@ -1099,7 +1213,7 @@
         ${trainerCoordsMarkup("HEK / START WANDELPAD", TRAINER_COORDS.fence)}
         ${trainerCoordsMarkup("BANKJE / PLAATJE", "72 meter vanaf het hek")}
         <p>Het hek is ontgrendeld. Je bent binnen, maar je bent er nog niet. Een commando moet soms ook praten onder druk. Vanaf nu zing je hardop een marsliedje tot de volgende plek. Daardoor kun je niet meer veilig in je hoofd stappen tellen en moet je de omgeving slimmer gebruiken.</p>
-        ${imageMarkup("photo/web/5c_pad_naar_bankje.jpg", "Het wandelpad na het hek.", "success-image")}
+        ${imageMarkup("photo/5c_pad_naar_bankje.webp", "Het wandelpad na het hek.", "success-image")}
         <div class="task-block">
           <h2>Opdracht</h2>
           <p>Volg vanaf het hek het wandelpad. Zing onderweg onafgebroken een marsliedje. Leg 72 meter af en houd halt wanneer je denkt dat je opdrachtpunt is bereikt.</p>
@@ -1130,7 +1244,7 @@
             <h1 id="false-title">DE OVERSTEEK</h1>
             ${trainerCoordsMarkup("KANAAL", TRAINER_COORDS.canal)}
             <p>Zwem onmiddellijk naar de overkant van het water en begin je baantjes te tellen!</p>
-            ${imageMarkup("photo/10_uitdaging_kanaal.jpg", "Water bij de valse oversteek.", "success-image")}
+            ${imageMarkup("photo/10_uitdaging_kanaal.webp", "Water bij de valse oversteek.", "success-image")}
           </div>
         </section>
       `;
@@ -1141,9 +1255,9 @@
       const giftContent = state.spaRevealed ? `
               <p>Quinn vindt dat jij veel beter een spa mag ondergaan. Dat is zijn cadeau aan jou. Als hij weer terug is van vakantie neemt hij je mee.</p>
               ${imageGridMarkup([
-                { src: "photo/web/spa/11_private_spa_cottage.jpg", alt: "Private spa cottage." },
-                { src: "photo/web/spa/2025_patince_spa.jpg", alt: "Spa met zwembad." },
-                { src: "photo/web/spa/spa_mood.jpg", alt: "Ontspannende spa-behandeling." }
+                { src: "photo/11_private_spa_cottage.webp", alt: "Private spa cottage." },
+                { src: "photo/2025_patince_spa.webp", alt: "Spa met zwembad." },
+                { src: "photo/spa_mood.webp", alt: "Ontspannende spa-behandeling." }
               ])}
               <p>Voor nu mag jij al het gemak gebruiken: de fiets die er staat, het lekkers en het drinken. Wij moeten maar verder bikkelen. Jij bent immers jarig.</p>
       ` : `
@@ -1192,6 +1306,11 @@
       }
       if (state.view !== "complete") {
         clearSpaRevealTimer();
+      }
+
+      if (state.view === "intro") {
+        renderIntro();
+        return;
       }
 
       if (state.view === "prebriefing") {
@@ -1247,6 +1366,28 @@
         app.focus({ preventScroll: true });
         window.scrollTo({ top: 0, behavior: "smooth" });
       }, 30);
+    }
+
+    function showIntroPack() {
+      hideFlash();
+      state.introStage = "pack";
+      render();
+      focusApp();
+    }
+
+    function completeIntroPack() {
+      const missingRequiredItem = [...document.querySelectorAll("[data-pack-required='true']")]
+        .some(input => !input.checked);
+
+      if (missingRequiredItem) {
+        showFlash(missionData.intro.stage2.warning);
+        return;
+      }
+
+      hideFlash();
+      state.view = "prebriefing";
+      render();
+      focusApp();
     }
 
     function startMissionOne() {
@@ -1540,6 +1681,14 @@
       }
 
       const action = button.getAttribute("data-action");
+
+      if (action === "intro-pack") {
+        showIntroPack();
+      }
+
+      if (action === "complete-pack") {
+        completeIntroPack();
+      }
 
       if (action === "start") {
         startMissionOne();
