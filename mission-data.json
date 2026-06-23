@@ -66,6 +66,33 @@
       "note": "Afgerond uit GPS-coordinaten; speler schat zelf aantal stappen."
     }
   ],
+  "media": {
+    "phase1Briefing": [
+      "photo/1_uitdaging_oesterzwammen.jpg",
+      "photo/web/intro_speurtocht.jpg"
+    ],
+    "phase5Practice": [
+      "photo/web/3_6_oefenen_richting_en_afstand.jpg",
+      "photo/5_uitdaging_wandelpad_lengte.jpg"
+    ],
+    "phase6BlindMarch": [
+      "photo/web/4a_pad_naar_hek.jpg",
+      "photo/web/4b_pad_naar_hek.jpg",
+      "photo/web/4d_hek.jpg",
+      "photo/web/4e_hek.jpg"
+    ],
+    "phase7WalkingPath": [
+      "photo/web/5c_pad_naar_bankje.jpg"
+    ],
+    "phase8Bench": [
+      "photo/web/5b_bankje.jpg",
+      "photo/web/img_3292.jpg"
+    ],
+    "phase9Stones": [
+      "photo/web/5a_pad_naar_keien.jpg",
+      "photo/8_uitdaging_keien.jpg"
+    ]
+  },
   "answers": {
     "mission1CircumferenceCm": 265,
     "mission1DiameterCmRange": [80, 89],

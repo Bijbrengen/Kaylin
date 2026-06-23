@@ -323,6 +323,13 @@
       background: #050805;
     }
 
+    .image-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
     .success-image {
       margin-top: 16px;
     }
@@ -483,6 +490,10 @@
       .choice-grid {
         grid-template-columns: 1fr 1fr;
       }
+
+      .image-grid {
+        grid-template-columns: 1fr 1fr;
+      }
     }
   </style>
 </head>
@@ -529,7 +540,7 @@
 
     const missions = {
       1: {
-        tag: "MISSIE 1",
+        tag: "FASE 2",
         title: "DE DIKKE BOOM",
         coords: TRAINER_COORDS.mission1,
         image: "photo/2_uitdaging_dikke_boom.jpg",
@@ -543,7 +554,7 @@
         validate: value => value >= 260 && value <= 270
       },
       2: {
-        tag: "MISSIE 2",
+        tag: "FASE 3",
         title: "DE DODE REUS",
         coords: "52.816415, 6.546675",
         image: "photo/3_uitdaging_dode_boom.jpg",
@@ -557,7 +568,7 @@
         validate: value => value === 7
       },
       3: {
-        tag: "MISSIE 3",
+        tag: "FASE 4",
         title: "DE GEVAARLIJKE HANGER",
         coords: "52.816668, 6.545142",
         image: "photo/4_uitdaging_gevallen_boom.jpg",
@@ -728,6 +739,14 @@
       `;
     }
 
+    function imageGridMarkup(images) {
+      return `
+        <div class="image-grid">
+          ${images.map(image => imageMarkup(image.src, image.alt)).join("")}
+        </div>
+      `;
+    }
+
     function trainerCoordsMarkup(label, coords) {
       return isTrainerMode ? `<div class="coords">TRAINER COORDS - ${label}: ${coords}</div>` : "";
     }
@@ -740,11 +759,12 @@
       app.innerHTML = `
         <section class="screen" aria-labelledby="prebriefing-title">
           <div class="screen-frame">
-            <p class="kicker">FASE 0: OMGEVINGSGEHEUGEN</p>
+            <p class="kicker">FASE 1</p>
             <h1 id="prebriefing-title">De Pre-Briefing</h1>
             ${trainerCoordsMarkup("STARTPUNT", TRAINER_COORDS.start)}
             <p class="briefing-copy">Als goede commando moet je in staat zijn dingen te onthouden van je omgeving. Een scherpe blik is het verschil tussen slagen en falen. Kijk goed naar de foto. Herken deze plek meteen. Ga zo snel mogelijk naar deze locatie toe op het landgoed. Pas als je er staat, druk je op de startknop.</p>
             ${imageMarkup("photo/1_uitdaging_oesterzwammen.jpg", "Boomstronk met het oesterzwammenbriefje op het startpunt.", "success-image")}
+            ${imageMarkup("photo/web/intro_speurtocht.jpg", "Landgoed de Vossenberg.", "success-image")}
             <div class="button-stack">
               <button class="btn" type="button" data-action="start">IK STA OP HET STARTPUNT (START DE OPLEIDING)</button>
             </div>
@@ -761,7 +781,7 @@
             <h1 id="briefing-title">Landgoed de Vossenberg</h1>
             <p class="briefing-copy">Cursist, welkom op Landgoed de Vossenberg. Jouw navigatieskills en stappenberekening worden vandaag getest onder zware commando-omstandigheden. Geen GPS-kaarten. Verplaats je naar de startlocatie.</p>
             <div class="button-stack">
-              <button class="btn" type="button" data-action="start">START MISSIE 1</button>
+              <button class="btn" type="button" data-action="start">START FASE 2</button>
             </div>
           </div>
         </section>
@@ -833,7 +853,7 @@
         <section class="screen" aria-labelledby="success-title">
           <div class="screen-frame">
             <p class="status-stamp">Intel bevestigd</p>
-            <h1 id="success-title">Missie ${state.completedMission} voltooid</h1>
+            <h1 id="success-title">Fase ${state.completedMission + 1} voltooid</h1>
             <p>${mission.success}</p>
             ${mission.image ? imageMarkup(mission.image, mission.imageAlt, "success-image") : ""}
             ${buttonMarkup}
@@ -857,12 +877,13 @@
       app.innerHTML = `
         <section class="screen" aria-labelledby="calibration-title">
           <div class="screen-frame">
-            <p class="kicker">OEFENFASE - TELT NIET MEE</p>
+            <p class="kicker">FASE 5 - TELT NIET MEE</p>
             <h1 id="calibration-title">Richting En Stappen Kalibreren</h1>
             ${trainerCoordsMarkup("KRUISING", TRAINER_COORDS.crossing)}
             ${trainerCoordsMarkup("HEK", TRAINER_COORDS.fence)}
             ${trainerCoordsMarkup("DATA", "zie mission-data.json")}
             <p>Cursist, deze oefening telt niet mee voor je Tactical Time. Je mag nu controleren, leren en kalibreren voordat de blinddoek weer om gaat.</p>
+            ${imageMarkup("photo/web/3_6_oefenen_richting_en_afstand.jpg", "Oefenplek richting kruising.", "success-image")}
             ${imageMarkup("photo/5_uitdaging_wandelpad_lengte.jpg", "Startplek van de blinde mars vanaf de kruising.", "success-image")}
             <div class="task-block">
               <h2>Oefening 1</h2>
@@ -903,10 +924,11 @@
         </form>
         ${tunnelNudgeMarkup}
       ` : `
-        <p class="kicker">FASE 7</p>
+        <p class="kicker">FASE 9</p>
         <h1 id="tunnel-title">Tunnelvisie Breken</h1>
         ${trainerCoordsMarkup("KEIEN", TRAINER_COORDS.stones)}
         <p>Loop door over het normale wandelpad. Let extreem goed op. Volg het pad tot je de stenen van de foto op je scherm ziet liggen. Maak als commando een identieke foto van deze stenen ter rapportage voor het intel-pakket.</p>
+        ${imageMarkup("photo/web/5a_pad_naar_keien.jpg", "Pad richting de keien.", "success-image")}
         ${imageMarkup("photo/8_uitdaging_keien.jpg", "Stenen op het pad voor het intel-pakket.", "success-image")}
         <div class="button-stack">
           <button class="btn" type="button" data-action="stones-photo">IK STA BIJ DE STENEN EN HEB DE FOTO GEMAAKT</button>
@@ -934,7 +956,7 @@
       app.innerHTML = `
         <section class="screen" aria-labelledby="gps-title">
           <div class="screen-frame">
-            <p class="kicker">FASE 8</p>
+            <p class="kicker">FASE 10</p>
             <h1 id="gps-title">De GPS-Verplaatsing</h1>
             ${trainerCoordsMarkup("KEIEN / START GPS-VERPLAATSING", TRAINER_COORDS.stones)}
             ${trainerCoordsMarkup("KANAAL / GPS-DOEL", `${TRAINER_COORDS.canal} (marge ${GPS_TARGET.toleranceMeters} meter)`)}
@@ -974,10 +996,16 @@
       app.innerHTML = `
         <section class="screen" aria-labelledby="finale-title">
           <div class="screen-frame">
-            <p class="kicker">MISSIE 4</p>
+            <p class="kicker">FASE 6</p>
             <h1 id="finale-title">De Blinde Mars</h1>
             ${trainerCoordsMarkup("HEK", TRAINER_COORDS.fence)}
             ${trainerCoordsMarkup("KRUISING NAAR HEK", `${CROSSING_TO_FENCE.distanceMeters} meter, ${CROSSING_TO_FENCE.bearingDegrees} graden`)}
+            ${imageGridMarkup([
+              { src: "photo/web/4a_pad_naar_hek.jpg", alt: "Pad richting het hek." },
+              { src: "photo/web/4b_pad_naar_hek.jpg", alt: "Bospaadje richting het hek." },
+              { src: "photo/web/4d_hek.jpg", alt: "Het hek waar de blinde mars op uitkomt." },
+              { src: "photo/web/4e_hek.jpg", alt: "Close-up van het hek." }
+            ])}
             <p>STATION STANDBY. Je staat op de kruising. Tijd voor de ultieme blinde beproeving richting het hek.</p>
             <div class="task-block">
               <h2>Buddy-instructie</h2>
@@ -1002,7 +1030,7 @@
         </div>
       ` : "";
       const reportContent = state.plaqueStep === "question" ? `
-          <p class="kicker">FASE 6</p>
+          <p class="kicker">FASE 8</p>
           <h1 id="fence-title">Rapportage Onder Druk</h1>
           <p>Houd halt bij het wandelpaaltje. Hoofdkwartier vraagt nu om je verslag. Wat stond er exact op het gele plaatje bij de plek die je zojuist nauwkeurig moest onderzoeken?</p>
           <div class="task-block">
@@ -1014,14 +1042,18 @@
             <button class="btn" type="submit">CONTROLEER RAPPORTAGE</button>
           </form>
         ` : state.plaqueStep === "proceed" ? `
-          <p class="kicker">FASE 6</p>
+          <p class="kicker">FASE 8</p>
           <h1 id="fence-title">Onderzoek Bevestigd</h1>
           <p>Plek correct herkend. Neem vooral de geschreven instructies goed in je op. Vervolg daarna het pad tot je een wandelpaaltje tegenkomt.</p>
+          ${imageGridMarkup([
+            { src: "photo/web/5b_bankje.jpg", alt: "Houten rustplek op het pad." },
+            { src: "photo/web/img_3292.jpg", alt: "Dezelfde rustplek vanuit een andere hoek." }
+          ])}
           <div class="button-stack">
             <button class="btn" type="button" data-action="at-route-post">IK STA BIJ HET WANDELPAALTJE</button>
           </div>
         ` : `
-          <p class="kicker">FASE 6</p>
+          <p class="kicker">FASE 8</p>
           <h1 id="fence-title">Onderzoek Je Plek</h1>
           ${trainerCoordsMarkup("ONDERZOEKSPLEK / PLAATJE", "72 meter vanaf het hek")}
           <p>Onderzoek je plek nauwkeurig en let vooral op geschreven instructies. Een commando moet feilloos en secuur verslag kunnen uitbrengen aan het hoofdkwartier, ook als de opdracht pas later duidelijk wordt.</p>
@@ -1035,7 +1067,7 @@
           </form>
         `;
       const content = state.fenceStep === "report" ? reportContent : state.fenceStep === "ready" ? `
-        <p class="kicker">FASE 6</p>
+        <p class="kicker">FASE 8</p>
         <h1 id="fence-title">Verder Naar De Keien</h1>
         ${trainerCoordsMarkup("KEIEN", TRAINER_COORDS.stones)}
         <p>Rapportage foutloos ontvangen. Geen letter verkeerd, geen spatie verdwaald. Je hebt goed gekeken en het plaatje correct gelezen. Nu mag je verder.</p>
@@ -1043,11 +1075,12 @@
           <button class="btn" type="button" data-action="send-report">VERDER NAAR DE KEIEN</button>
         </div>
       ` : `
-        <p class="kicker">FASE 5</p>
+        <p class="kicker">FASE 7</p>
         <h1 id="fence-title">Het Wandelpad</h1>
         ${trainerCoordsMarkup("HEK / START WANDELPAD", TRAINER_COORDS.fence)}
         ${trainerCoordsMarkup("BANKJE / PLAATJE", "72 meter vanaf het hek")}
         <p>Het hek is ontgrendeld. Je bent binnen, maar je bent er nog niet. Een commando moet soms ook praten onder druk. Vanaf nu zing je hardop een marsliedje tot de volgende plek. Daardoor kun je niet meer veilig in je hoofd stappen tellen en moet je de omgeving slimmer gebruiken.</p>
+        ${imageMarkup("photo/web/5c_pad_naar_bankje.jpg", "Het wandelpad na het hek.", "success-image")}
         <div class="task-block">
           <h2>Opdracht</h2>
           <p>Volg vanaf het hek het wandelpad. Zing onderweg onafgebroken een marsliedje. Leg 72 meter af en houd halt bij het houten rustpunt.</p>
@@ -1074,7 +1107,7 @@
       app.innerHTML = `
         <section class="screen" aria-labelledby="false-title">
           <div class="screen-frame">
-            <p class="kicker">MISSIE 5</p>
+            <p class="kicker">FASE 11</p>
             <h1 id="false-title">DE OVERSTEEK</h1>
             ${trainerCoordsMarkup("KANAAL", TRAINER_COORDS.canal)}
             <p>Zwem onmiddellijk naar de overkant van het water en begin je baantjes te tellen!</p>
