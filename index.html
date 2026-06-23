@@ -1376,8 +1376,8 @@
     }
 
     function completeIntroPack() {
-      const missingRequiredItem = [...document.querySelectorAll("[data-pack-required='true']")]
-        .some(input => !input.checked);
+      const requiredItems = [...document.querySelectorAll("[data-pack-required='true']")];
+      const missingRequiredItem = requiredItems.length > 0 && requiredItems.some(input => !input.checked);
 
       if (missingRequiredItem) {
         showFlash(missionData.intro.stage2.warning);

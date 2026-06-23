@@ -176,7 +176,7 @@
         "<strong>GEFELICITEERD MET JE VERJAARDAG, KAYLIN!</strong>",
         "We weten allemaal dat je intens kunt genieten van het kijken naar spannende series op de bank. Een van die absolute favorieten is <em>Kamp van Koningsbrugge</em> &mdash; de ultieme test waarin gewone burgers worden blootgesteld aan de loodzware, meedogenloze selectieopleiding van de Special Forces. Kijken vanaf de bank is comfortabel... maar vandaag breekt er een nieuw hoofdstuk aan.",
         "Vandaag ga jij dit niet vanaf de bank bekijken. <strong>Jij gaat het live meemaken.</strong>",
-        "De cadeaus die je zojuist hebt gekregen &mdash; jouw offici&euml;le commando-jas (<code>image_8.png</code>) en je tactische camouflage-hoofdbedekking (<code>image_9.png</code>) &mdash; zijn niet voor de show. Dit is de offici&euml;le uitrusting die je hebt gekregen van de opleidingsstaf. Je hebt ze vanaf dit moment hard nodig, want jouw eigen Opleiding tot Commando start NU, hier op Landgoed de Vossenberg!"
+        "De cadeaus die je zojuist hebt gekregen &mdash; jouw offici&euml;le commando-jas en je tactische camouflage-hoofdbedekking &mdash; zijn niet voor de show. Dit is de offici&euml;le uitrusting die je hebt gekregen van de opleidingsstaf. Je hebt ze vanaf dit moment hard nodig, want jouw eigen Opleiding tot Commando start NU, hier op Landgoed de Vossenberg!"
       ],
       "images": [
         {
@@ -198,28 +198,22 @@
       "kicker": "PLUNJEBAALCONTROLE",
       "title": "Stel Je Plunjebaal Samen",
       "paragraphs": [
-        "Een goede marinier gaat nooit onvoorbereid op pad. Je hebt je offici&euml;le legervest en camo-hoed al aan. Maar een verkenningstocht vereist een slim samengestelde rugzak. Los van de spullen die je al van de opleiding hebt gekregen, mag je nu je eigen plunjebaal gaan vullen.",
-        "Kies zorgvuldig wat je denkt nodig te hebben onderweg om goed beslagen ten ijs te komen!"
+        "Een goede marinier gaat nooit onvoorbereid op pad. Je hebt je offici&euml;le legervest en camo-hoed al aan. Maar een verkenningstocht vereist een slim samengestelde rugzak.",
+        "De opleidingsstaf levert de onderstaande basiszaken. Kies zorgvuldig wat je meeneemt. Een scherpe cursist bedenkt zelf of er onderweg misschien nog iets ontbreekt."
       ],
       "warning": "NEGATIEF CURSIST! Je vergeet cruciale uitrusting om je missie te volbrengen. Pak je plunjezak fatsoenlijk in!",
       "button": "RUGZAK INGEPAKT. NAAR HET STARTPUNT!",
       "items": [
         {
-          "id": "meetlint",
-          "label": "Meetlint",
-          "detail": "Cruciaal voor omtrekmetingen",
-          "required": true
-        },
-        {
           "id": "kompas",
           "label": "Tactisch kompas / Telefoon",
-          "detail": "Voor koersbepaling",
-          "required": true
+          "detail": "Basisnavigatie voor elke verkenning",
+          "required": false
         },
         {
           "id": "penpapier",
           "label": "Pen en papier",
-          "detail": "Voor het loggen van data",
+          "detail": "Voor notities onderweg",
           "required": false
         },
         {
