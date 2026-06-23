@@ -263,12 +263,12 @@
       "fence": {
         "name": "Rob",
         "image": "photo/Commando_Rob.webp",
-        "comment": "Rob stond in {targetTime} al bij het hek. Jij maakt er ondertussen een natuurdocumentaire met pauzes van."
+        "comment": "Rob stond in {targetTime} al bij het hek en had zelfs tijd voor een duik, ondertussen wachtend op jou."
       },
       "plaque": {
         "name": "Marielle",
         "image": "photo/Commando_Marielle.webp",
-        "comment": "Marielle had dit rapport in {targetTime} foutloos ingeleverd. Jij bewijst vooral dat letters ook hindernissen kunnen zijn."
+        "comment": "Marielle had dit rapport in {targetTime} foutloos ingeleverd. Geen plankenkoorts bij haar."
       },
       "stones": {
         "name": "Zuko",

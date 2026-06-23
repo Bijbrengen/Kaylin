@@ -709,6 +709,7 @@
       spaRevealReady: false,
       spaRevealed: false,
       spaRevealRemaining: 30,
+      completeStep: "congrats",
       introStage: "briefing",
       tunnelStep: "stones",
       tunnelNudge: false,
@@ -1324,7 +1325,10 @@
             <h1 id="false-title">DE OVERSTEEK</h1>
             ${trainerCoordsMarkup("KANAAL", TRAINER_COORDS.canal)}
             <p>Zwem onmiddellijk naar de overkant van het water en begin je baantjes te tellen!</p>
-            ${imageMarkup("photo/10_uitdaging_kanaal.webp", "Water bij de valse oversteek.", "success-image")}
+            <figure class="intel-image success-image" data-action="skip-false-mission" style="cursor:default;">
+              <img src="photo/10_uitdaging_kanaal.webp" alt="Water bij de valse oversteek." onerror="this.closest('figure').nextElementSibling.style.display='block'">
+            </figure>
+            <p class="image-missing">Asset ontbreekt nog: photo/10_uitdaging_kanaal.webp</p>
           </div>
         </section>
       `;
@@ -1352,6 +1356,30 @@
 
     function renderComplete() {
       setCelebrationMode(true);
+
+      if (state.completeStep === "congrats") {
+        app.innerHTML = `
+          <section class="screen" aria-labelledby="complete-title">
+            <div class="screen-frame">
+              <div class="confetti-line">* * * * * * *</div>
+              <p class="status-stamp">Verjaardagsrapport</p>
+              <h1 id="complete-title">Kaylin, Van Harte Gefeliciteerd!</h1>
+              <div class="final-block">
+                <p>Wacht eens even... We zijn toch niet gek?! Waarom zou je jezelf dit in vredesnaam aandoen op je verjaardag? Vinden we dat nou wel erg leuk en wat hebben we er eigenlijk aan?</p>
+                <p>Nee hoor! We hebben net besloten dat Kaylin zichzelf vandaag niet verder hoeft te martelen met afzien, modder, prikkeldraad en militaire ellende. Kijken hoe anderen zo gek zijn om marinier te willen worden in Kamp van Koningsbrugge is al ruig genoeg.</p>
+                <p><strong>KAYLIN, VAN HARTE GEFELICITEERD MET JE VERJAARDAG!</strong></p>
+                <p>Tactical Commando Eindtijd:</p>
+                <span class="final-time">${state.finalTime}</span>
+              </div>
+              <div class="button-stack">
+                <button class="btn" type="button" data-action="proceed-to-gift">VERDER</button>
+              </div>
+            </div>
+          </section>
+        `;
+        return;
+      }
+
       const giftContent = state.spaRevealed ? `
               <p>Quinn vindt dat jij veel beter een spa mag ondergaan. Dat is zijn cadeau aan jou. Als hij weer terug is van vakantie neemt hij je mee.</p>
               ${imageGridMarkup([
@@ -1361,6 +1389,7 @@
               ])}
               <p>Voor nu mag jij al het gemak gebruiken: de fiets die er staat, het lekkers en het drinken. Wij moeten maar verder bikkelen. Jij bent immers jarig.</p>
       ` : `
+              ${imageMarkup("photo/Quinn biedt spa aan.webp", "Quinn biedt de spa aan.", "success-image")}
               <p>Quinn vindt dat jij iets veel beters verdient.</p>
               <p class="muted">Denk maar even na wat dat dan zou kunnen zijn...</p>
               ${state.spaRevealReady ? `
@@ -1377,16 +1406,8 @@
       app.innerHTML = `
         <section class="screen" aria-labelledby="complete-title">
           <div class="screen-frame">
-            <div class="confetti-line">* * * * * * *</div>
-            <p class="status-stamp">Verjaardagsrapport</p>
-            <h1 id="complete-title">Kaylin, Van Harte Gefeliciteerd!</h1>
             <div class="final-block">
-              <p>Wacht eens even... We zijn toch niet gek?! Waarom zou je jezelf dit in vredesnaam aandoen op je verjaardag? Vinden we dat nou wel erg leuk en wat hebben we er eigenlijk aan?</p>
-              <p>Nee hoor! We hebben net besloten dat Kaylin zichzelf vandaag niet verder hoeft te martelen met afzien, modder, prikkeldraad en militaire ellende. Kijken hoe anderen zo gek zijn om marinier te willen worden in Kamp van Koningsbrugge is al ruig genoeg.</p>
-              <p><strong>KAYLIN, VAN HARTE GEFELICITEERD MET JE VERJAARDAG!</strong></p>
               ${giftContent}
-              <p>Tactical Commando Eindtijd:</p>
-              <span class="final-time">${state.finalTime}</span>
             </div>
           </div>
         </section>
@@ -1510,6 +1531,7 @@
       state.spaRevealReady = false;
       state.spaRevealed = false;
       state.spaRevealRemaining = 30;
+      state.completeStep = "congrats";
       clearSpaRevealTimer();
       state.finaleStep = "choices";
       state.fenceStep = "march";
@@ -1790,6 +1812,7 @@
       focusApp();
       state.autoAdvanceId = window.setTimeout(() => {
         state.spaRevealRemaining = 30;
+        state.completeStep = "congrats";
         state.view = "complete";
         render();
         focusApp();
@@ -1898,6 +1921,12 @@
         sendReportToHeadquarters();
       }
 
+      if (action === "proceed-to-gift") {
+        state.completeStep = "gift";
+        render();
+        focusApp();
+      }
+
       if (action === "reveal-spa") {
         state.spaRevealed = true;
         clearSpaRevealTimer();
@@ -1907,6 +1936,15 @@
 
       if (action === "recovery-chance") {
         startFalseMissionTwist();
+      }
+
+      if (action === "skip-false-mission") {
+        clearAutoAdvance();
+        state.spaRevealRemaining = 30;
+        state.completeStep = "congrats";
+        state.view = "complete";
+        render();
+        focusApp();
       }
     });
 
