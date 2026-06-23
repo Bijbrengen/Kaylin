@@ -242,5 +242,44 @@
         }
       ]
     }
+  },
+  "commandoComparisons": {
+    "checkpoints": {
+      "mission1": {
+        "name": "Quinn",
+        "image": "photo/Commando_Quinn.webp",
+        "comment": "Quinn, die stakker, had dit als commando in {targetTime} gedaan. En die had waarschijnlijk nog tijd over om dramatisch in de verte te kijken."
+      },
+      "mission2": {
+        "name": "Bas",
+        "image": "photo/Commando_Bas.webp",
+        "comment": "Bas had hier {targetTime} voor nodig gehad. Niet omdat hij haast heeft, maar omdat wachten op jouw tempo fysiek pijn doet."
+      },
+      "mission3": {
+        "name": "Carmen",
+        "image": "photo/Commando_Carmen.webp",
+        "comment": "Carmen had dit in {targetTime} afgewerkt en daarna gevraagd waarom de warming-up zo lang duurde."
+      },
+      "fence": {
+        "name": "Rob",
+        "image": "photo/Commando_Rob.webp",
+        "comment": "Rob stond in {targetTime} al bij het hek. Jij maakt er ondertussen een natuurdocumentaire met pauzes van."
+      },
+      "plaque": {
+        "name": "Marielle",
+        "image": "photo/Commando_Marielle.webp",
+        "comment": "Marielle had dit rapport in {targetTime} foutloos ingeleverd. Jij bewijst vooral dat letters ook hindernissen kunnen zijn."
+      },
+      "stones": {
+        "name": "Zuko",
+        "image": "photo/Commando_Zuko.webp",
+        "comment": "Zuko had de routepaaltjes in {targetTime} gevonden. Dat zegt iets, cursist. Niet per se iets fijns."
+      },
+      "final": {
+        "name": "Hilde",
+        "image": "photo/Commando_Hilde.webp",
+        "comment": "Zelfs Hilde had deze hele operatie in {targetTime} kunnen afronden. En dan had ze waarschijnlijk nog gevraagd waarom iedereen zo moeilijk deed."
+      }
+    }
   }
 }

@@ -411,6 +411,42 @@
       background: rgba(255, 102, 0, 0.1);
     }
 
+    .commando-stand {
+      display: grid;
+      gap: 12px;
+      margin: 18px 0;
+      padding: 12px;
+      border: 2px solid var(--orange);
+      background: rgba(0, 0, 0, 0.38);
+    }
+
+    .commando-stand img {
+      display: block;
+      width: 100%;
+      max-height: 320px;
+      object-fit: cover;
+      border: 1px solid var(--line-soft);
+      background: #050805;
+    }
+
+    .commando-stand p {
+      margin-bottom: 8px;
+    }
+
+    .commando-stand strong {
+      color: var(--orange);
+      text-transform: uppercase;
+    }
+
+    .commando-time {
+      display: inline-block;
+      margin-top: 4px;
+      color: var(--line);
+      font-family: "Courier New", monospace;
+      font-size: 1.45rem;
+      font-weight: 900;
+    }
+
     code {
       padding: 1px 4px;
       border: 1px solid var(--line-soft);
@@ -664,6 +700,7 @@
       fenceHint: false,
       missionOneStep: "circumference",
       missionOneCircumference: null,
+      missionOneDiameterHint: false,
       hints: {
         1: false,
         2: false,
@@ -818,6 +855,28 @@
       `;
     }
 
+    function commandoStandMarkup(key) {
+      const commando = missionData.commandoComparisons && missionData.commandoComparisons.checkpoints[key];
+      if (!commando) {
+        return "";
+      }
+
+      const targetTime = formatTime(Math.floor(state.elapsed / 2));
+      const comment = commando.comment.replace("{targetTime}", targetTime);
+
+      return `
+        <div class="commando-stand">
+          <img src="${commando.image}" alt="Commando ${commando.name}" loading="lazy">
+          <div>
+            <p class="kicker">TUSSENSTAND: ${commando.name}</p>
+            <p><strong>${commando.name} had gekund:</strong></p>
+            <span class="commando-time">${targetTime}</span>
+            <p>${comment}</p>
+          </div>
+        </div>
+      `;
+    }
+
     function trainerCoordsMarkup(label, coords) {
       return isTrainerMode ? `<div class="coords">TRAINER COORDS - ${label}: ${coords}</div>` : "";
     }
@@ -928,14 +987,20 @@
       const fieldPlaceholder = isMissionOneDiameter ? "84" : mission.placeholder;
       const fieldPlaceholderFallback = isMissionOneDiameter ? "diameter" : state.mission === 1 ? "omtrek" : "antwoord";
       const submitLabel = isMissionOneDiameter ? "BEVESTIG DIAMETER" : "BEVESTIG ANTWOORD";
+      const missionOneHint = isMissionOneDiameter
+        ? `<p class="hint-suggestion">Suggestie: gebruik de rekenformule omtrek = &pi; x diameter. Dus: diameter = omtrek / &pi;. In dit geval reken je met ${state.missionOneCircumference} / &pi;.</p>`
+        : `<p class="hint-suggestion">Suggestie: kompas, richtinggevoel en meters vreten. Er ligt een meetlint in de kapschuur.</p>`;
       const hintSuggestions = {
-        1: `<p class="hint-suggestion">Suggestie: kompas, richtinggevoel en meters vreten. Er ligt een meetlint in de kapschuur.</p>`,
+        1: missionOneHint,
         2: `<p class="hint-suggestion">Suggestie: gebruik de boswachtersmethode, ook bekend als de arm-stok-truc. Pak een stok van ongeveer een armlengte, houd je arm gestrekt en de stok rechtop. Loop achteruit tot de top van de stok optisch samenvalt met de top van de boom en de onderkant van de stok met de voet van de stam. De afstand van jou tot de boom is dan ongeveer de hoogte van de boom. Pestend detail, cursist: een stok van een armlengte ligt in de kapschuur.</p>`,
         3: `<p class="hint-suggestion">Suggestie: gebruik een referentietak van 5 cm dik om te bepalen welke zijtakken meetellen. Alles van minimaal die dikte moet eerst afgezaagd worden; alles dunner kun je afbreken.</p>`
       };
       const hintSuggestion = hintSuggestions[state.mission] || "";
+      const hasActiveHint = state.mission === 1 && isMissionOneDiameter
+        ? state.missionOneDiameterHint
+        : state.hints[state.mission];
       const hintImage = mission.image ? imageMarkup(mission.image, mission.imageAlt) : "";
-      const hintMarkup = state.hints[state.mission] ? `
+      const hintMarkup = hasActiveHint ? `
         ${hintImage}
         ${hintSuggestion}
       ` : "";
@@ -971,6 +1036,7 @@
     function renderSuccess() {
       const mission = missions[state.completedMission];
       const isMissionThree = state.completedMission === 3;
+      const commandoKey = `mission${state.completedMission}`;
       const successImage = mission.successImage || mission.image;
       const successImageAlt = mission.successImageAlt || mission.imageAlt;
       const buttonMarkup = isMissionThree ? `
@@ -987,6 +1053,7 @@
             <p class="status-stamp">Intel bevestigd</p>
             <h1 id="success-title">Fase ${state.completedMission + 1} voltooid</h1>
             <p>${mission.success}</p>
+            ${commandoStandMarkup(commandoKey)}
             ${successImage ? imageMarkup(successImage, successImageAlt, "success-image") : ""}
             ${buttonMarkup}
           </div>
@@ -1049,6 +1116,7 @@
         <p class="kicker">CONTROLEFOUT</p>
         <h1 id="tunnel-title">Houd Halt!</h1>
         ${trainerCoordsMarkup("KEIEN", TRAINER_COORDS.stones)}
+        ${commandoStandMarkup("stones")}
         <p>Je hebt gefocust op de grond om de stenen te vinden, maar heb je om je heen gekeken? Hoeveel paarse routepaaltjes ben je zojuist gepasseerd vanaf het bankje tot aan deze stenen?</p>
         <form class="answer-form" data-action="tunnel-answer">
           ${integerInputMarkup("purple-posts", "Aantal paarse routepaaltjes", String(PURPLE_POST_TARGET), "aantal")}
@@ -1203,6 +1271,7 @@
         <p class="kicker">FASE 8</p>
         <h1 id="fence-title">Verder Naar De Keien</h1>
         ${trainerCoordsMarkup("KEIEN", TRAINER_COORDS.stones)}
+        ${commandoStandMarkup("plaque")}
         <p>Rapportage foutloos ontvangen. Geen letter verkeerd, geen spatie verdwaald. Je hebt goed gekeken en het plaatje correct gelezen. Nu mag je verder.</p>
         <div class="button-stack">
           <button class="btn" type="button" data-action="send-report">VERDER NAAR DE KEIEN</button>
@@ -1212,6 +1281,7 @@
         <h1 id="fence-title">Het Wandelpad</h1>
         ${trainerCoordsMarkup("HEK / START WANDELPAD", TRAINER_COORDS.fence)}
         ${trainerCoordsMarkup("BANKJE / PLAATJE", "72 meter vanaf het hek")}
+        ${commandoStandMarkup("fence")}
         <p>Het hek is ontgrendeld. Je bent binnen, maar je bent er nog niet. Een commando moet soms ook praten onder druk. Vanaf nu zing je hardop een marsliedje tot de volgende plek. Daardoor kun je niet meer veilig in je hoofd stappen tellen en moet je de omgeving slimmer gebruiken.</p>
         ${imageMarkup("photo/5c_pad_naar_bankje.webp", "Het wandelpad na het hek.", "success-image")}
         <div class="task-block">
@@ -1284,6 +1354,7 @@
               ${giftContent}
               <p>Tactical Commando Eindtijd:</p>
               <span class="final-time">${state.finalTime}</span>
+              ${commandoStandMarkup("final")}
             </div>
           </div>
         </section>
@@ -1404,6 +1475,7 @@
       state.fenceHint = false;
       state.missionOneStep = "circumference";
       state.missionOneCircumference = null;
+      state.missionOneDiameterHint = false;
       state.hints = { 1: false, 2: false, 3: false };
       state.mission = 1;
       state.view = "mission";
@@ -1484,7 +1556,11 @@
     }
 
     function requestHint() {
-      state.hints[state.mission] = true;
+      if (state.mission === 1 && state.missionOneStep === "diameter") {
+        state.missionOneDiameterHint = true;
+      } else {
+        state.hints[state.mission] = true;
+      }
       addPenalty(120, missionData.copy.messages.hintPenalty);
       render();
     }
