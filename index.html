@@ -572,6 +572,8 @@
         title: "DE GEVAARLIJKE HANGER",
         coords: "52.816668, 6.545142",
         image: "photo/4_uitdaging_gevallen_boom.jpg",
+        successImage: "photo/web/3_6_oefenen_richting_en_afstand.jpg",
+        successImageAlt: "Pad vanaf de gevallen boom richting de kruising.",
         imageAlt: "Omgevallen boom die de doorgang blokkeert.",
         briefing: "Vanaf de dode reus volgt de eindspurt naar de gevaarlijke hanger. Richting: EXACT 281 graden (vrijwel pal West). Afstand: EXACT 107 meter. Pas op: hier ligt een gevaarlijke, omgevallen boom die de doorgang blokkeert.",
         task: "Voordat de hangende boom verwerkt kan worden, moeten de stevige zijtakken eraf. Tel exact hoeveel zijtakken minimaal 5 cm dik zijn en dus eerst afgezaagd moeten worden. Dunnere takken kun je afbreken.",
@@ -762,9 +764,14 @@
             <p class="kicker">FASE 1</p>
             <h1 id="prebriefing-title">De Pre-Briefing</h1>
             ${trainerCoordsMarkup("STARTPUNT", TRAINER_COORDS.start)}
+            <p class="briefing-copy">Kaylin kijkt graag naar commando-training op tv. Dus wat geef je iemand die daarvan houdt? Geen gewone wandeling, maar een eigen training in de naaste omgeving: observeren, navigeren, rekenen, doorzetten en vooral niet te snel denken dat je klaar bent.</p>
+            ${imageGridMarkup([
+              { src: "photo/web/intro_speurtocht.jpg", alt: "Introbeeld van de omgeving." },
+              { src: "photo/web/intro_speurtocht_2.jpg", alt: "Introbeeld van het landgoed." },
+              { src: "photo/web/intro_speurtocht_3.jpg", alt: "Introbeeld van het bos." }
+            ])}
             <p class="briefing-copy">Als goede commando moet je in staat zijn dingen te onthouden van je omgeving. Een scherpe blik is het verschil tussen slagen en falen. Kijk goed naar de foto. Herken deze plek meteen. Ga zo snel mogelijk naar deze locatie toe op het landgoed. Pas als je er staat, druk je op de startknop.</p>
             ${imageMarkup("photo/1_uitdaging_oesterzwammen.jpg", "Boomstronk met het oesterzwammenbriefje op het startpunt.", "success-image")}
-            ${imageMarkup("photo/web/intro_speurtocht.jpg", "Landgoed de Vossenberg.", "success-image")}
             <div class="button-stack">
               <button class="btn" type="button" data-action="start">IK STA OP HET STARTPUNT (START DE OPLEIDING)</button>
             </div>
@@ -804,7 +811,7 @@
         3: `<p class="hint-suggestion">Suggestie: gebruik een referentietak van 5 cm dik om te bepalen welke zijtakken meetellen. Alles van minimaal die dikte moet eerst afgezaagd worden; alles dunner kun je afbreken.</p>`
       };
       const hintSuggestion = hintSuggestions[state.mission] || "";
-      const hintImage = state.mission === 3 ? "" : (mission.image ? imageMarkup(mission.image, mission.imageAlt) : "");
+      const hintImage = mission.image ? imageMarkup(mission.image, mission.imageAlt) : "";
       const hintMarkup = state.hints[state.mission] ? `
         ${hintImage}
         ${hintSuggestion}
@@ -841,6 +848,8 @@
     function renderSuccess() {
       const mission = missions[state.completedMission];
       const isMissionThree = state.completedMission === 3;
+      const successImage = mission.successImage || mission.image;
+      const successImageAlt = mission.successImageAlt || mission.imageAlt;
       const buttonMarkup = isMissionThree ? `
         <div class="auto-advance">BLINDE MARS WORDT GELADEN...</div>
       ` : `
@@ -855,7 +864,7 @@
             <p class="status-stamp">Intel bevestigd</p>
             <h1 id="success-title">Fase ${state.completedMission + 1} voltooid</h1>
             <p>${mission.success}</p>
-            ${mission.image ? imageMarkup(mission.image, mission.imageAlt, "success-image") : ""}
+            ${successImage ? imageMarkup(successImage, successImageAlt, "success-image") : ""}
             ${buttonMarkup}
           </div>
         </section>
@@ -1083,14 +1092,14 @@
         ${imageMarkup("photo/web/5c_pad_naar_bankje.jpg", "Het wandelpad na het hek.", "success-image")}
         <div class="task-block">
           <h2>Opdracht</h2>
-          <p>Volg vanaf het hek het wandelpad. Zing onderweg onafgebroken een marsliedje. Leg 72 meter af en houd halt bij het houten rustpunt.</p>
+          <p>Volg vanaf het hek het wandelpad. Zing onderweg onafgebroken een marsliedje. Leg 72 meter af en houd halt wanneer je denkt dat je opdrachtpunt is bereikt.</p>
         </div>
         <div class="intel-block">
           <button class="btn secondary" type="button" data-action="fence-hint">OPVRAGEN INTEL (HINT)</button>
           ${fenceHintMarkup}
         </div>
         <div class="button-stack">
-          <button class="btn" type="button" data-action="at-bench">IK STA BIJ HET HOUTEN RUSTPUNT</button>
+          <button class="btn" type="button" data-action="at-bench">IK BEN 72 METER VERDER</button>
         </div>
       `;
 
@@ -1127,9 +1136,15 @@
             <h1 id="complete-title">Kaylin, Van Harte Gefeliciteerd!</h1>
             <div class="final-block">
               <p>Wacht eens even... We zijn toch niet gek?! Waarom zou je jezelf dit in vredesnaam aandoen op je verjaardag? Vinden we dat nou wel erg leuk en wat hebben we er eigenlijk aan?</p>
-              <p>Nee hoor! Hiermee hopen we dat je inziet: marinier zijn... Ach, waarom zouden we onszelf dat aandoen, terwijl we lekker thuis aan een gebakje kunnen zitten en verjaardag kunnen vieren? Kijken hoe anderen zo gek zijn om marinier te willen worden in Kamp van Koningsbrugge is een veel betere strategie in het leven!</p>
+              <p>Nee hoor! We hebben net besloten dat Kaylin zichzelf vandaag niet verder hoeft te martelen met afzien, modder, prikkeldraad en militaire ellende. Kijken hoe anderen zo gek zijn om marinier te willen worden in Kamp van Koningsbrugge is al ruig genoeg.</p>
               <p><strong>KAYLIN, VAN HARTE GEFELICITEERD MET JE VERJAARDAG!</strong></p>
-              <p>Ik hoop dat je dit cadeautje vermakelijk vond. Je mag nu heel comfortabel, zonder omwegen, op een heerlijk pad, zonder te tellen, zonder na te denken en zonder kompas... gewoon je eigen vertrouwde weg terugkiezen naar de taart!</p>
+              <p>Quinn vindt dat jij veel beter een spa mag ondergaan. Dat is zijn cadeau aan jou. Als hij weer terug is van vakantie neemt hij je mee.</p>
+              ${imageGridMarkup([
+                { src: "photo/web/spa/11_private_spa_cottage.jpg", alt: "Private spa cottage." },
+                { src: "photo/web/spa/2025_patince_spa.jpg", alt: "Spa met zwembad." },
+                { src: "photo/web/spa/spa_mood.jpg", alt: "Ontspannende spa-behandeling." }
+              ])}
+              <p>Voor nu mag jij al het gemak gebruiken: de fiets die er staat, het lekkers en het drinken. Wij moeten maar verder bikkelen. Jij bent immers jarig.</p>
               <p>Tactical Commando Eindtijd:</p>
               <span class="final-time">${state.finalTime}</span>
             </div>

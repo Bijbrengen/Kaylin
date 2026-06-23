@@ -69,7 +69,13 @@
   "media": {
     "phase1Briefing": [
       "photo/1_uitdaging_oesterzwammen.jpg",
-      "photo/web/intro_speurtocht.jpg"
+      "photo/web/intro_speurtocht.jpg",
+      "photo/web/intro_speurtocht_2.jpg",
+      "photo/web/intro_speurtocht_3.jpg"
+    ],
+    "phase4DangerousHanger": [
+      "photo/4_uitdaging_gevallen_boom.jpg",
+      "photo/web/3_6_oefenen_richting_en_afstand.jpg"
     ],
     "phase5Practice": [
       "photo/web/3_6_oefenen_richting_en_afstand.jpg",
@@ -91,6 +97,11 @@
     "phase9Stones": [
       "photo/web/5a_pad_naar_keien.jpg",
       "photo/8_uitdaging_keien.jpg"
+    ],
+    "birthdaySpaGift": [
+      "photo/web/spa/11_private_spa_cottage.jpg",
+      "photo/web/spa/2025_patince_spa.jpg",
+      "photo/web/spa/spa_mood.jpg"
     ]
   },
   "answers": {
